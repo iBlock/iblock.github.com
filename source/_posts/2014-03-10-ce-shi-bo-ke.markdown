@@ -3,7 +3,7 @@ layout: post
 title: "测试博客"
 date: 2014-03-10 10:47:23 +0800
 comments: true
-categories: 测试
+categories: Test
 
 ---
 这是一

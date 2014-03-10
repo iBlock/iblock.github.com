@@ -11,6 +11,7 @@ single: true
       {% include post/author.html %}
       {% include post/date.html %}{% if updated %}{{ updated }}{% else %}{{ time }}{% endif %}
       {% include post/categories.html %}
+	  {% include post/license.html %}
     </p>
     {% unless page.sharing == false %}
       {% include post/sharing.html %}
@@ -33,7 +34,7 @@ single: true
 {% endif %}
 {% if site.duoshuo_short_name and site.duoshuo_comments == true and page.comments == true %}
   <section>
-    <h5>如果觉得文章不错，欢迎进行如下分享</h5>
+    <h1>欢迎进行如下分享</h1>
     <div id="comments" aria-live="polite">{% include post/duoshuo.html %}</div>
   </section>
 {% endif %}
