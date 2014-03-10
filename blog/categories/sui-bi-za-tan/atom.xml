@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: 随笔杂谈 | iBlock的博客]]></title>
+  <link href="http://iBlock.github.io/blog/categories/sui-bi-za-tan/atom.xml" rel="self"/>
+  <link href="http://iBlock.github.io/"/>
+  <updated>2014-03-11T00:34:07+08:00</updated>
+  <id>http://iBlock.github.io/</id>
+  <author>
+    <name><![CDATA[iBlock]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Octopress博客开博]]></title>
+    <link href="http://iBlock.github.io/blog/2014/03/10/octopressbo-ke-kai-bo/"/>
+    <updated>2014-03-10T22:06:21+08:00</updated>
+    <id>http://iBlock.github.io/blog/2014/03/10/octopressbo-ke-kai-bo</id>
+    <content type="html"><![CDATA[<p><img src="/images/20140310/octopress.png" title="octopress" alt="alt text" /></p>
+
+<!--more-->
+
+
+<h2>前言</h2>
+
+<p>octopress弄了好几天终于搭建起来了，主要是一开始在捣鼓各种各样的主题，然后找各种各样的插件，到头来发现我并不需要这些，我仅仅是需要一个能记录我的生活、记录我学习的点滴这么一个平台。为什么会选择Octopress？虽说只是为了写博客，但是我之前试过在其它的平台比如：博客园、CSDN等尝试写博客，但是效果很不理想，无论是外观样式还是排版都不怎么满意。我一直在看<a href="http://blog.devtang.com/" title="唐巧">唐巧</a>和<a href="http://onevcat.com/" title="上善若水">OneV&rsquo;s Den</a>写的技术博客，发现这样的博客正是我想要的样子，马上一通Google，最终才找到了octopress，下面我将把我搭建该博客的步骤记录下来。</p>
+
+<h2>安装步骤</h2>
+
+<ul>
+<li><h4>安装RVM，RVM(Ruby Version Manager)负责安装和管理Ruby的环境</h4>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>curl -L &lt;a href="https://get.rvm.io">https://get.rvm.io&lt;/a> | bash -s stable &mdash;ruby</span></code></pre></td></tr></table></div></figure></notextile></div></p></li>
+<li><h4>安装Ruby 1.9.3</h4>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>git clone git://github.com/imathis/octopress.git octopress          #octopress路径可以根据需要修改
+</span><span class='line'>cd octopress        #进入到指定路径下
+</span><span class='line'>ruby &mdash;version      #应该能正确输出ruby版本号才对</span></code></pre></td></tr></table></div></figure></notextile></div></p></li>
+<li><h4>安装相关依赖项</h4>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>gem install bundler
+</span><span class='line'>rbenv rehash
+</span><span class='line'>bundle install</span></code></pre></td></tr></table></div></figure></notextile></div></p></li>
+<li><h4>安装默认的Octopress主题，其它主题可参考<a href="https://github.com/imathis/octopress/wiki/3rd-Party-Octopress-Themes," title="主题列表">这里</a></h4>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>rake install</span></code></pre></td></tr></table></div></figure></notextile></div></p></li>
+</ul>
+
+
+<h2>配置Octopress</h2>
+
+<p>我这里主要是针对默认主题来展开的，其它主题的配置可能不一定适用。</p>
+
+<ul>
+<li><h4>首先修改_config.yml文件</h4>
+
+<p>我主要修改以下几项：
+<code>title</code>、<code>subtitle</code>、<code>author</code>
+，并且删除twitter相关的信息，由于GFW的原因，将会造成页面load很慢。</p></li>
+</ul>
+
+
+<p>关于_config.yml文件中的更多内容，请看<a href="http://octopress.org/">这里</a></p>
+
+<h2>将博客部署到github上</h2>
+
+<ul>
+<li><h4>准备工作</h4></li>
+</ul>
+
+
+<p>1.创建<code>github</code>账号</p>
+
+<p>2.在github上<code>创建一个仓库</code>，并将仓库名称按照这样的方式进行命名：<code>username.github.com</code>或<code>organization.github.com</code>，之后我们的博客就可以以<code>http://username.github.com</code>这样的方式来进行访问了。
+以上内容如有不明白的可自行Google。</p>
+
+<ul>
+<li><h4>根据Octopress的<code>rake</code>命令来自动配置仓库</h4>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>rake setup_github_pages</span></code></pre></td></tr></table></div></figure></notextile></div>
+上面的命令主要做的就是创建一个_deploy目录，目录用来存放部署到master分支的内容。期间会要求你输入仓库的url，根据提示，进行输入即可。
+完成上面的命令之后，我们就可以生成博客并真正的部署到仓库中了。执行如下命令：
+<div class='bogus-wrapper'><notextile><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>rake generate
+</span><span class='line'>rake deploy     #通过该命令把博客生成的内容提交到master分支下</span></code></pre></td></tr></table></div></figure></notextile></div>
+上面的命令首先生成博客文件，并将生成的博客文件拷贝到<code>_deploy/</code>目录下，然后将这些内容添加到git中，并commit和push到仓库的<code>master</code>分支。
+现在可以访问<code>http://username.github.com</code>了。注意：有时候可能会有延时，要等几分钟才能打开（我等了10分钟左右）。</p></li>
+</ul>
+
+
+<p>在使用rake deploy命令时可能会出现如下错误：
+<blockquote><p>Pushing generated _deploy website<br/>To git@github.com:xxx/iblock.github.com.git<br/> ! [rejected]        master &ndash;> master (non-fast-forward)<br/>error: failed to push some refs to &lsquo;git@github.com:xxx/iblock.github.com.git&rsquo;</p></blockquote></p>
+
+<p>看了很多人的博客搭建上都没有提到这个问题，不知道是否都没遇到，总之我是遇到了，出现这个问题后会发现怎么使用rake deploy这个命令在github的maste分支都没有任何东西，经过Google，最后找到解决方案了，修改<code>rakefile</code>文件里面的system &ldquo;git push origin #{deploy_branch}"改成system "git push origin <code>+</code>#{deploy_branch}"就解决了。</p>
+
+<ul>
+<li><h4>将博客的源代码放到source分支下</h4>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ git add .
+</span><span class='line'>$ git commit -m &lsquo;Initial source commit&rsquo;
+</span><span class='line'>$ git push origin source</span></code></pre></td></tr></table></div></figure></notextile></div></p></li>
+</ul>
+
+
+<p>如果在部署到仓库之前，需要先预览一下博客，可以在终端输入<code>rake preview</code>命令，然后就能在浏览器中进行本地预览访问了：<code>http://127.0.0.1:4000/</code>或<code>http://localhost:4000/</code>，效果跟仓库中的一样。</p>
+
+<p>完成上面的步骤后已经可以开始写博客了，只不过是页面也太过精简了，下面是用octopress写博客的几个步骤：
+<div class='bogus-wrapper'><notextile><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ rake new_post[&ldquo;New Post&rdquo;]
+</span><span class='line'>$ rake generate
+</span><span class='line'>$ git add .
+</span><span class='line'>$ git commit -am &ldquo;Some comment here.&rdquo;
+</span><span class='line'>$ git push origin source
+</span><span class='line'>$ rake deploy</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<h2>一些个性化的定制</h2>
+
+<ul>
+<li><h4>添加最近更新</h4>
+
+<p>修改_config.yml文件，找到<code>default_asides:</code>，添加asides/recent_posts.html</p></li>
+<li><h4>修改插件用来支持中文分类</h4>
+
+<p>修改octopress/plugins目录下的category_list.rb插件，修改如下：
+<div class='bogus-wrapper'><notextile><figure class='code'><figcaption><span>category_list.rb </span></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="nb">require</span> <span class="o">&amp;</span><span class="n">lsquo</span><span class="p">;</span><span class="n">stringex</span><span class="o">&amp;</span><span class="n">rsquo</span><span class="p">;</span><span class="o">&lt;</span><span class="sr">/p&gt;&lt;/</span><span class="n">li</span><span class="o">&gt;</span>
+</span><span class='line'><span class="o">&lt;</span><span class="sr">/ul&gt;</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="sr">&lt;p&gt;module Jekyll</span>
+</span><span class='line'><span class="sr">  class CategoryListTag &amp;lt; Liquid::Tag&lt;/</span><span class="nb">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">pre</span><span class="o">&gt;&lt;</span><span class="n">code</span><span class="o">&gt;</span><span class="k">def</span> <span class="nf">render</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
+</span><span class='line'>  <span class="n">html</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+</span><span class='line'>  <span class="n">categories</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">registers</span><span class="o">[</span><span class="ss">:site</span><span class="o">].</span><span class="n">categories</span><span class="o">.</span><span class="n">keys</span>
+</span><span class='line'>  <span class="n">categories</span><span class="o">.</span><span class="n">sort</span><span class="o">.</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">category</span><span class="o">|</span>
+</span><span class='line'>    <span class="n">posts_in_category</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">registers</span><span class="o">[</span><span class="ss">:site</span><span class="o">].</span><span class="n">categories</span><span class="o">[</span><span class="n">category</span><span class="o">].</span><span class="n">size</span>
+</span><span class='line'>    <span class="n">category_dir</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">registers</span><span class="o">[</span><span class="ss">:site</span><span class="o">].</span><span class="n">config</span><span class="o">[</span><span class="s1">&#39;category_dir&#39;</span><span class="o">]</span>
+</span><span class='line'>    <span class="c1"># category_url = File.join(category_dir, category.gsub(/_|\P{Word}/u, &#39;-&#39;).gsub(/-{2,}/u, &#39;-&#39;).downcase)</span>
+</span><span class='line'>    <span class="n">category_url</span> <span class="o">=</span> <span class="no">File</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">category_dir</span><span class="p">,</span> <span class="n">category</span><span class="o">.</span><span class="n">to_url</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">html</span> <span class="o">&amp;</span><span class="n">lt</span><span class="p">;</span><span class="o">&amp;</span><span class="n">lt</span><span class="p">;</span> <span class="s2">&quot;&amp;lt;li class=&#39;category&#39;&amp;gt;&amp;lt;a href=&#39;http://iBlock.github.io/</span><span class="si">#{</span><span class="n">category_url</span><span class="si">}</span><span class="s2">/&#39;&amp;gt;</span><span class="si">#{</span><span class="n">category</span><span class="si">}</span><span class="s2"> (</span><span class="si">#{</span><span class="n">posts_in_category</span><span class="si">}</span><span class="s2">)&amp;lt;/a&amp;gt;&amp;lt;/li&amp;gt;</span><span class="se">\n</span><span class="s2">&quot;</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>  <span class="n">html</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'><span class="o">&lt;</span><span class="sr">/code&gt;&lt;/</span><span class="n">pre</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nb">p</span><span class="o">&gt;</span>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span><span class="o">&lt;</span><span class="sr">/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="sr">&lt;p&gt;Liquid::Template.register_tag(&amp;lsquo;category_list&amp;rsquo;, Jekyll::CategoryListTag)</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<h1>困了&hellip;.未完待续&hellip;.</h1>
+]]></content>
+  </entry>
+  
+</feed>

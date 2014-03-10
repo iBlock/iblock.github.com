@@ -1,24 +1,16 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <urlset xmlns='http://www.sitemaps.org/schemas/sitemap/0.9'>
     <url>
-        <loc>http://iBlock.github.io/blog/2014/03/10/ce-shi-bo-ke/</loc>
-        <lastmod>2014-03-10T17:52:57+08:00</lastmod>
-    </url>
-    <url>
-        <loc>http://iBlock.github.io/blog/2014/03/10/ce-shi-fen-lei/</loc>
-        <lastmod>2014-03-10T17:52:57+08:00</lastmod>
-    </url>
-    <url>
-        <loc>http://iBlock.github.io/blog/2014/03/10/ce-shi-biao-qian/</loc>
-        <lastmod>2014-03-10T18:49:56+08:00</lastmod>
+        <loc>http://iBlock.github.io/blog/2014/03/10/octopressbo-ke-kai-bo/</loc>
+        <lastmod>2014-03-11T00:33:59+08:00</lastmod>
     </url>
     <url>
         <loc>http://iBlock.github.io/blog/archives/</loc>
-        <lastmod>2014-03-10T18:49:56+08:00</lastmod>
+        <lastmod>2014-03-11T00:33:59+08:00</lastmod>
     </url>
     <url>
         <loc>http://iBlock.github.io/</loc>
-        <lastmod>2014-03-10T18:49:56+08:00</lastmod>
+        <lastmod>2014-03-11T00:33:59+08:00</lastmod>
     </url>
     <url>
         <loc>http://iBlock.github.io/robots.txt</loc>
