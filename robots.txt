@@ -1,0 +1,4 @@
+User-agent: *
+Disallow: 
+
+Sitemap: http://iBlock.github.io/sitemap.xml 
