@@ -11,10 +11,10 @@ description: Octopress博客搭建
 
 ![alt text](/images/20140310/octopress.png "octopress")
 
-<!--more-->
-
 ##前言
 octopress弄了好几天终于搭建起来了，主要是一开始在捣鼓各种各样的主题，然后找各种各样的插件，到头来发现我并不需要这些，我仅仅是需要一个能记录我的生活、记录我学习的点滴这么一个平台。为什么会选择Octopress？虽说只是为了写博客，但是我之前试过在其它的平台比如：博客园、CSDN等尝试写博客，但是效果很不理想，无论是外观样式还是排版都不怎么满意。我一直在看[唐巧](http://blog.devtang.com/ "唐巧")和[OneV's Den](http://onevcat.com/ "上善若水")写的技术博客，发现这样的博客正是我想要的样子，马上一通Google，最终才找到了octopress，下面我将把我搭建该博客的步骤记录下来。
+
+<!--more-->
 
 ##安装步骤
 * ####安装RVM，RVM(Ruby Version Manager)负责安装和管理Ruby的环境
@@ -102,11 +102,11 @@ $ rake deploy
 {% endcodeblock %}
 
 ##一些个性化的定制
-* ####添加最近更新
+* ####添加最近发表文章
 修改_config.yml文件，找到`default_asides:`，添加asides/recent_posts.html
 
-* ####修改插件用来支持中文分类
-修改octopress/plugins目录下的category_list.rb插件，修改如下：
+* ####添加分类列表，并支持中文分类
+保存以下代码到plugins/category_list.rb：
 {% codeblock lang:ruby category_list.rb %}
 require 'stringex'
 
@@ -130,4 +130,87 @@ end
 Liquid::Template.register_tag('category_list', Jekyll::CategoryListTag)
 {% endcodeblock %}
 
-#困了....未完待续....
+这个插件会向liquid注册一个名为category_list的tag，该tag就是以li的形式将站点所有的category组织起来。如果要将category加入到侧边导航栏，需要增加一个aside。
+
+复制以下代码到source/_includes/asides/category_list.html。
+
+{% codeblock lang:html category_list.html %}
+<section>
+  <h1>Categories</h1>
+  {% raw %}
+  <ul id="categories">
+    {% category_list %}
+  </ul>
+  {% endraw %}
+</section>
+{% endcodeblock %}
+
+配置侧边栏需要修改_config.yml文件，修改其default_asides项：
+如下代码所示：
+{% codeblock %}
+default_asides: [asides/category_list.html, asides/recent_posts.html]
+{% endcodeblock %}
+
+以上asides根据自己的需求调整。
+
+* ####添加分享及评论系统
+
+分享我用的是[加网](http://www.jiathis.com/)。
+
+评论我用的是[多说](http://duoshuo.com/)。
+
+首先去[多说网](http://iblock.duoshuo.com/)注册个账号，添加[站点](http://duoshuo.com/create-site/)，获取站点short_name，但是这个short_name怎么获取我之前费了不少功夫才得知，其实就是申请多说二级域名，然后就能获得short_name了。比如我申请了iblock.duoshuo.com，那么我的short_name就是iblock。
+在 `source/_layouts/post.html`中的disqus代码
+
+{% codeblock lang:html post.html %}
+{% raw %}
+{% if site.disqus_short_name and page.comments == true %}
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite">{% include post/disqus_thread.html %}</div>
+  </section>
+{% endif %}
+{% endraw %}
+{% endcodeblock %}
+
+下方添加`多说评论`模块
+{% codeblock lang:html post.html %}
+{% raw %}
+{% if site.duoshuo_short_name and site.duoshuo_comments == true and page.comments == true %}
+  <section>
+    <h1>Comments</h1>
+    <div id="comments" aria-live="polite">{% include post/duoshuo.html %}</div>
+  </section>
+{% endif %}
+{% endraw %}
+{% endcodeblock %}
+
+然后就按路径创建一个 `source/_includes/post/duoshuo.html`，添加如下代码：
+
+{% include_code duoshuo.html %}
+
+注意，将上面代码中的short_name:"iblock"更改为你的short_name。
+
+最后修改_config.yml文件，添加
+
+{% codeblock _config.yml %}
+# duoshuo comments
+duoshuo_comments: true
+duoshuo_short_name: yourname
+{% endcodeblock %}
+
+以上内容就是我搭建博客过程中的步骤。
+
+主要参考的文章如下：
+
+[http://beyondvincent.com/blog/2013/08/03/108-creating-a-github-blog-using-octopress/](http://beyondvincent.com/blog/2013/08/03/108-creating-a-github-blog-using-octopress/)
+[http://blog.devtang.com/blog/2012/02/10/setup-blog-based-on-github/](http://blog.devtang.com/blog/2012/02/10/setup-blog-based-on-github/)
+[http://biaobiaoqi.me/blog/2013/07/10/decorate-octopress/](http://biaobiaoqi.me/blog/2013/07/10/decorate-octopress/)
+
+
+
+
+
+
+
+
