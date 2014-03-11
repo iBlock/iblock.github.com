@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
 
-  <title><![CDATA[Category: 随笔杂谈 | iBlock的博客]]></title>
-  <link href="http://iBlock.github.io/blog/categories/sui-bi-za-tan/atom.xml" rel="self"/>
+  <title><![CDATA[Category: Octopress | iBlock的博客]]></title>
+  <link href="http://iBlock.github.io/blog/categories/octopress/atom.xml" rel="self"/>
   <link href="http://iBlock.github.io/"/>
   <updated>2014-03-11T23:15:13+08:00</updated>
   <id>http://iBlock.github.io/</id>
