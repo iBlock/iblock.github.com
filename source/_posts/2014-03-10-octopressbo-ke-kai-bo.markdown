@@ -3,7 +3,7 @@ layout: post
 title: "Octopress博客开博"
 date: 2014-03-10 22:06:21 +0800
 comments: true
-categories: 随笔杂谈
+categories: [随笔杂谈, Octopress]
 keywords: Octopress
 description: Octopress博客搭建
 
