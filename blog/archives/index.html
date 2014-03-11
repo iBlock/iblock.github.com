@@ -10,7 +10,7 @@
 
   
   <meta name="description" content=" Blog Archive 2014 Octopress博客开博
-Mar 10 2014 posted in 随笔杂谈 最近更新 Octopress博客开博 文章分类 随笔杂谈 (1) ">
+Mar 10 2014 posted in 随笔杂谈 最近发表 Octopress博客开博 文章分类 随笔杂谈 (1) ">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -28,8 +28,28 @@ Mar 10 2014 posted in 随笔杂谈 最近更新 Octopress博客开博 文章分�
   <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
   <script src="/javascripts/octopress.js" type="text/javascript"></script>
   <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
-<link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
-<link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<!-- <link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css"> -->
+<script type="text/javascript">
+
+function addBlankTargetForLinks () {
+
+  $('a[href^="http"]').each(function(){
+
+      $(this).attr('target', '_blank');
+
+  });
+
+}
+
+$(document).bind('DOMNodeInserted', function(event) {
+
+  addBlankTargetForLinks();
+
+});
+
+</script>
+
 
   
 
@@ -101,7 +121,7 @@ Mar 10 2014 posted in 随笔杂谈 最近更新 Octopress博客开博 文章分�
 <aside class="sidebar">
   
     <section>
-  <h1>最近更新</h1>
+  <h1>最近发表</h1>
   <ul id="recent_posts">
     
       <li class="post">
