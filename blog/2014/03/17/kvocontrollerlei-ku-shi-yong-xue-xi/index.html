@@ -1,0 +1,572 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>KVOController类库使用学习 - iBlock的博客</title>
+  <meta name="author" content="iBlock">
+
+  
+  <meta name="description" content="KVOController类库简介 KVOController 是一个简单安全的 KVO（Key-value Observing，键-值 观察）工具，用于 iOS 和 OS X 应用开发中，开源自 facebook。 KVO 是一个在 MVC（Model-View-Controller） &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://iBlock.github.io/blog/2014/03/17/kvocontrollerlei-ku-shi-yong-xue-xi">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="iBlock的博客" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<!-- <link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css"> -->
+
+<script type="text/javascript">
+
+function addBlankTargetForLinks () {
+
+  $('a[href^="http"]').each(function(){
+
+      $(this).attr('target', '_blank');
+
+  });
+
+}
+
+$(document).bind('DOMNodeInserted', function(event) {
+
+  addBlankTargetForLinks();
+
+});
+
+</script>
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">iBlock的博客</a></h1>
+  
+    <h2>一介码农，IOS攻城师.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:iBlock.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">博客首页</a></li>
+  <li><a href="/blog/archives">所有文章</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">KVOController类库使用学习</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-03-17T17:29:07+08:00" pubdate data-updated="true">Mar 17<span>th</span>, 2014</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><h2>KVOController类库简介</h2>
+
+<p>KVOController 是一个简单安全的 KVO（Key-value Observing，键-值 观察）工具，用于 iOS 和 OS X 应用开发中，开源自 facebook。</p>
+
+<p>KVO 是一个在 MVC（Model-View-Controller）应用程序开发中，用于不同模块间交流的一个很有用的技术。 KVOController 是基于 Cocoa 久经考验的 Key-value Observing 实现（implementation）开发而成的。它提供了一个简单现代的 API，同时也是线程安全的。它有如下优点：</p>
+
+<ul>
+<li>使用 Blocks、自定义 Actions 或者 NSKeyValueObserving 回调进行通知.</li>
+<li>观测者移除时无异常</li>
+<li>控制器 dealloc 时隐式的观测者移除</li>
+<li>提升使用 NSKeyValueObservingInitial 的性能</li>
+<li>线程安全并提供在观测者恢复时额外的保护Thread-safety with special guards against observer resurrection – rdar://15985376.
+更多关于 KVO 的信息，可浏览 Apple 的文档：<a href="https://developer.apple.com/library/mac/documentation/Cocoa/Conceptual/KeyValueObserving/KeyValueObserving.html">Introduction to Key-Value Observing</a></li>
+</ul>
+
+
+<!--more-->
+
+
+<h2>Demo功能说明</h2>
+
+<p>假设我要做这么一个东西，有一个界面类，上面有一个UITextField控件，该会时时显示当前的系统时间，而显示的内容将从一个模型类中去获取。简单点就是模型类每隔一秒会获取当前的系统时间，而每一次时间的更新都时时反映到UITextField上。</p>
+
+<h2>不使用KVOController之前</h2>
+
+<p>如下代码所示：
+首先新建模型类CurrentTimer，并添加date属性</p>
+
+<figure class='code'><figcaption><span>CurrentTimer.h </span></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='obj-c'><span class='line'><span class="cp">#import &lt;Foundation/Foundation.h&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">@interface</span> <span class="nc">CurrentTimer</span> : <span class="nc">NSObject</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">@property</span> <span class="p">(</span><span class="n">nonatomic</span><span class="p">,</span> <span class="n">strong</span><span class="p">)</span><span class="n">NSDate</span> <span class="o">*</span><span class="n">date</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">@end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>添加定时器，每秒获取一次当前时间并赋给date属性</p>
+
+<figure class='code'><figcaption><span>CurrentTimer.m </span></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+</pre></td><td class='code'><pre><code class='obj-c'><span class='line'><span class="cp">#import &quot;CurrentTimer.h&quot;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">@implementation</span> <span class="nc">CurrentTimer</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">-</span> <span class="p">(</span><span class="kt">id</span><span class="p">)</span><span class="nf">init</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="n">self</span> <span class="o">=</span> <span class="p">[</span><span class="n">super</span> <span class="n">init</span><span class="p">];</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="n">self</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="p">[</span><span class="n">NSTimer</span> <span class="nl">scheduledTimerWithTimeInterval:</span><span class="mf">1.0</span> <span class="nl">target:</span><span class="n">self</span> <span class="nl">selector:</span><span class="k">@selector</span><span class="p">(</span><span class="nl">changeTimer:</span><span class="p">)</span> <span class="nl">userInfo:</span><span class="nb">nil</span> <span class="nl">repeats:</span><span class="n">YES</span><span class="p">];</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">return</span> <span class="n">self</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">changeTimer:</span><span class="p">(</span><span class="n">NSTimer</span> <span class="o">*</span><span class="p">)</span><span class="nv">timer</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="n">self</span><span class="p">.</span><span class="n">date</span> <span class="o">=</span> <span class="p">[</span><span class="n">NSDate</span> <span class="n">date</span><span class="p">];</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">@end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>创建视图类对象，添加输出控件UITextField</p>
+
+<figure class='code'><figcaption><span>ViewController.h </span></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='obj-c'><span class='line'><span class="cp">#import &lt;UIKit/UIKit.h&gt;</span>
+</span><span class='line'><span class="cp">#import &quot;CurrentTimer.h&quot;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">@interface</span> <span class="nc">ViewController</span> : <span class="nc">UIViewController</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">@property</span> <span class="p">(</span><span class="n">strong</span><span class="p">,</span> <span class="n">nonatomic</span><span class="p">)</span> <span class="kt">IBOutlet</span> <span class="n">UITextField</span> <span class="o">*</span><span class="n">showDate</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">@property</span> <span class="p">(</span><span class="n">nonatomic</span><span class="p">,</span> <span class="n">strong</span><span class="p">)</span> <span class="n">CurrentTimer</span> <span class="o">*</span><span class="n">timer</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">@end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>添加观察者，监听模型类CurrentTimer中的date属性，添加响应方法observeValueForKeyPath，每当date属性值发生改变时都会触发该方法</p>
+
+<figure class='code'><figcaption><span>ViewController.m </span></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+</pre></td><td class='code'><pre><code class='obj-c'><span class='line'><span class="cp">#import &quot;ViewController.h&quot;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">@interface</span> <span class="nc">ViewController</span> <span class="p">()</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">@end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">@implementation</span> <span class="nc">ViewController</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">viewDidLoad</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="p">[</span><span class="n">super</span> <span class="n">viewDidLoad</span><span class="p">];</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">self</span><span class="p">.</span><span class="n">timer</span> <span class="o">=</span> <span class="p">[[</span><span class="n">CurrentTimer</span> <span class="n">alloc</span><span class="p">]</span> <span class="n">init</span><span class="p">];</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="p">[</span><span class="n">self</span><span class="p">.</span><span class="n">timer</span> <span class="nl">addObserver:</span><span class="n">self</span> <span class="nl">forKeyPath:</span><span class="s">@&quot;date&quot;</span> <span class="nl">options:</span><span class="n">NSKeyValueObservingOptionNew</span> <span class="o">|</span> <span class="n">NSKeyValueObservingOptionOld</span> <span class="nl">context:</span><span class="nb">nil</span><span class="p">];</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">observeValueForKeyPath:</span><span class="p">(</span><span class="n">NSString</span> <span class="o">*</span><span class="p">)</span><span class="nv">keyPath</span> <span class="nf">ofObject:</span><span class="p">(</span><span class="kt">id</span><span class="p">)</span><span class="nv">object</span> <span class="nf">change:</span><span class="p">(</span><span class="n">NSDictionary</span> <span class="o">*</span><span class="p">)</span><span class="nv">change</span> <span class="nf">context:</span><span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="p">)</span><span class="nv">context</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="k">if</span> <span class="p">([</span><span class="n">keyPath</span> <span class="nl">isEqualToString:</span><span class="s">@&quot;date&quot;</span><span class="p">])</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="n">NSLog</span><span class="p">(</span><span class="s">@&quot;%@&quot;</span><span class="p">,</span> <span class="n">change</span><span class="p">[</span><span class="n">NSKeyValueChangeNewKey</span><span class="p">]);</span>
+</span><span class='line'>        <span class="n">NSString</span> <span class="o">*</span><span class="n">dateStr</span> <span class="o">=</span> <span class="p">[</span><span class="n">NSString</span> <span class="nl">stringWithFormat:</span><span class="s">@&quot;%@&quot;</span><span class="p">,</span> <span class="n">change</span><span class="p">[</span><span class="n">NSKeyValueChangeNewKey</span><span class="p">]];</span>
+</span><span class='line'>        <span class="n">self</span><span class="p">.</span><span class="n">showDate</span><span class="p">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">dateStr</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">didReceiveMemoryWarning</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="p">[</span><span class="n">super</span> <span class="n">didReceiveMemoryWarning</span><span class="p">];</span>
+</span><span class='line'>    <span class="c1">// Dispose of any resources that can be recreated.</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">@end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>运行将能看到最终效果，上述Demo代码可在<a href="https://github.com/iBlock/KVOTest">这里获取</a></p>
+
+<h2>使用KVOController示例</h2>
+
+<h4>KVOController类库的配置</h4>
+
+<p>我比较习惯使用Cocoapods进行配置，如果不懂Cocoapods是什么的，可参考<a href="http://blog.devtang.com/blog/2012/12/02/use-cocoapod-to-manage-ios-lib-dependency/">这里</a>。</p>
+
+<p>配置好后首先还是一样先新建一个CurrentTimer模型类用来时时获取当前时间，然后新建视图类，主要代码如下：</p>
+
+<figure class='code'><figcaption><span>ViewController.h </span></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='obj-c'><span class='line'><span class="cp">#import &lt;UIKit/UIKit.h&gt;</span>
+</span><span class='line'><span class="cp">#import &quot;CurrentTimer.h&quot;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">@interface</span> <span class="nc">ViewController</span> : <span class="nc">UIViewController</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">@property</span> <span class="p">(</span><span class="n">strong</span><span class="p">,</span> <span class="n">nonatomic</span><span class="p">)</span> <span class="kt">IBOutlet</span> <span class="n">UITextField</span> <span class="o">*</span><span class="n">showDate</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">@property</span> <span class="p">(</span><span class="n">strong</span><span class="p">,</span> <span class="n">nonatomic</span><span class="p">)</span> <span class="n">CurrentTimer</span> <span class="o">*</span><span class="n">timer</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">@end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span>ViewController.m </span></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+</pre></td><td class='code'><pre><code class='obj-c'><span class='line'><span class="cp">#import &quot;ViewController.h&quot;</span>
+</span><span class='line'><span class="cp">#import &lt;FBKVOController.h&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">@interface</span> <span class="nc">ViewController</span> <span class="p">()</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="n">FBKVOController</span> <span class="o">*</span><span class="n">kvoController</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="k">@end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">@implementation</span> <span class="nc">ViewController</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">viewDidLoad</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="p">[</span><span class="n">super</span> <span class="n">viewDidLoad</span><span class="p">];</span>
+</span><span class='line'>    <span class="n">kvoController</span> <span class="o">=</span> <span class="p">[</span><span class="n">FBKVOController</span> <span class="nl">controllerWithObserver:</span><span class="n">self</span><span class="p">];</span>
+</span><span class='line'>    <span class="n">self</span><span class="p">.</span><span class="n">timer</span> <span class="o">=</span> <span class="p">[[</span><span class="n">CurrentTimer</span> <span class="n">alloc</span><span class="p">]</span> <span class="n">init</span><span class="p">];</span>
+</span><span class='line'>    <span class="p">[</span><span class="n">kvoController</span> <span class="nl">observe:</span><span class="n">self</span><span class="p">.</span><span class="n">timer</span> <span class="nl">keyPath:</span><span class="s">@&quot;date&quot;</span> <span class="nl">options:</span><span class="n">NSKeyValueObservingOptionOld</span> <span class="o">|</span><span class="n">NSKeyValueObservingOptionNew</span> <span class="nl">block:</span><span class="o">^</span><span class="p">(</span><span class="n">ViewController</span> <span class="o">*</span><span class="n">view</span><span class="p">,</span> <span class="n">CurrentTimer</span> <span class="o">*</span><span class="n">timer</span><span class="p">,</span> <span class="n">NSDictionary</span> <span class="o">*</span><span class="n">change</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="n">NSString</span> <span class="o">*</span><span class="n">dateStr</span> <span class="o">=</span> <span class="p">[</span><span class="n">NSString</span> <span class="nl">stringWithFormat:</span><span class="s">@&quot;%@&quot;</span><span class="p">,</span> <span class="n">change</span><span class="p">[</span><span class="n">NSKeyValueChangeNewKey</span><span class="p">]];</span>
+</span><span class='line'>        <span class="n">self</span><span class="p">.</span><span class="n">showDate</span><span class="p">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">dateStr</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">}];</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">didReceiveMemoryWarning</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="p">[</span><span class="n">super</span> <span class="n">didReceiveMemoryWarning</span><span class="p">];</span>
+</span><span class='line'>    <span class="c1">// Dispose of any resources that can be recreated.</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">@end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>可以看到，该类库的使用也异常方便，还支持Block，整体看起来很简洁，具体代码可<a href="https://github.com/iBlock/KVOControllerTest">看这里</a>。</p>
+
+<p>以上就是今天对KVOController类库的学习，记录一下。</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">iBlock</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-03-17T17:29:07+08:00" pubdate data-updated="true">Mar 17<span>th</span>, 2014</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/kvocontroller/'>KVOController</a>, <a class='category' href='/blog/categories/object-c/'>Object-C</a>, <a class='category' href='/blog/categories/di-san-fang-ku/'>第三方库</a>
+  
+</span>
+
+
+	  
+
+<DIV style="font-size:12px;BORDER-BOTTOM: #bbbbbb 1px solid; BORDER-LEFT: #bbbbbb 1px solid; BACKGROUND: #f6f6f6; HEIGHT: 120px; BORDER-TOP: #bbbbbb 1px solid; BORDER-RIGHT: #bbbbbb 1px solid" class=oec2003right> 
+<DIV style="MARGIN-TOP: 10px; FLOAT: left; MARGIN-LEFT: 5px; MARGIN-RIGHT: 10px"> 
+<IMG alt="" src="http://pic.cnitblog.com/avatar/574275/20131014211458.png" width=90 height=100></DIV> 
+<DIV style="LINE-HEIGHT: 200%; MARGIN-TOP: 10px; COLOR: #000000"> 
+作者： <A href="http://iblock.github.io/">iBlock</A> <BR> 
+出处： <A href="http://iblock.github.io/">http://iblock.github.io/</A> 
+<BR>本文基于<a target="_blank" title="Creative Commons Attribution 2.5 China Mainland License" href="http://creativecommons.org/licenses/by/2.5/cn/"> 
+署名 2.5 中国大陆</a>许可协议发布，欢迎转载，演绎或用于商业目的，但是必须保留本文的署名 
+<a href="http://iblock.github.io/">iBlock</a>（包含链接）。 </DIV></DIV> 
+
+    </p>
+    
+      <div class="sharing">
+  
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2014/03/12/da-jian-octopressbo-ke-hou-cocoapodwu-fa-shi-yong-wen-ti-ji-lu/" title="Previous Post: 搭建Octopress博客后cocoaPod无法使用问题记录">&laquo; 搭建Octopress博客后cocoaPod无法使用问题记录</a>
+      
+      
+    </p>
+  </footer>
+</article>
+
+
+  <section>
+    <h1>欢迎进行如下分享</h1>
+    <div id="comments" aria-live="polite"><!-- JiaThis Button BEGIN -->
+<div class="jiathis_style_24x24">
+	<a class="jiathis_button_qzone"></a>
+	<a class="jiathis_button_tsina"></a>
+	<a class="jiathis_button_tqq"></a>
+	<a class="jiathis_button_weixin"></a>
+	<a class="jiathis_button_renren"></a>
+	<a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jtico jtico_jiathis" target="_blank"></a>
+	<a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js?uid=1394073450203129" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+
+<!-- Duoshuo Comment BEGIN -->
+	<div class="ds-thread"></div>
+<script type="text/javascript">
+var duoshuoQuery = {short_name:"iblock"};
+	(function() {
+		var ds = document.createElement('script');
+		ds.type = 'text/javascript';ds.async = true;
+		ds.src = 'http://static.duoshuo.com/embed.js';
+		ds.charset = 'UTF-8';
+		(document.getElementsByTagName('head')[0] 
+		|| document.getElementsByTagName('body')[0]).appendChild(ds);
+	})();
+	</script>
+<!-- Duoshuo Comment END --></div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>最近发表</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2014/03/17/kvocontrollerlei-ku-shi-yong-xue-xi/">KVOController类库使用学习</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/03/12/da-jian-octopressbo-ke-hou-cocoapodwu-fa-shi-yong-wen-ti-ji-lu/">搭建Octopress博客后cocoaPod无法使用问题记录</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/03/10/octopressbo-ke-kai-bo/">Octopress博客开博</a>
+      </li>
+    
+  </ul>
+</section>
+<section>
+<h1>文章分类</h1>
+<ul>
+    <li>
+    	<a href="http://iblock.github.io/blog/categories/huan-jing-da-jian/">环境搭建</a>
+    </li>
+	
+	<li>
+		<a href="http://iblock.github.io/blog/categories/di-san-fang-ku">第三方库</a>
+	</li>
+</ul>
+</section>
+
+<section>
+  <h1>Tag Cloud</h1>
+    <span id="tag-cloud"><embed type='application/x-shockwave-flash' src='/javascripts/tagcloud.swf'width='100%' height='250' bgcolor='#f2f2f2' id='tagcloudflash' name='tagcloudflash' quality='high' allowscriptaccess='always'flashvars="tcolor=0x333333&amp;tcolor2=0x333333&amp;hicolor=0x000000&amp;tspeed=100&amp;distr=true&amp;mode=tags&amp;tagcloud=%3Ctags%3E%3Ca+href%3D%27http%3A%2F%2FiBlock.github.io%2Fblog%2Fcategories%2Fcocoapod%27+style%3D%27font-size%3A+30.0%25%27%3Ecocoapod%3C%2Fa%3E+%3Ca+href%3D%27http%3A%2F%2FiBlock.github.io%2Fblog%2Fcategories%2Fkvocontroller%27+style%3D%27font-size%3A+30.0%25%27%3EKVOController%3C%2Fa%3E+%3Ca+href%3D%27http%3A%2F%2FiBlock.github.io%2Fblog%2Fcategories%2Fobject-c%27+style%3D%27font-size%3A+30.0%25%27%3EObject-C%3C%2Fa%3E+%3Ca+href%3D%27http%3A%2F%2FiBlock.github.io%2Fblog%2Fcategories%2Foctopress%27+style%3D%27font-size%3A+30.0%25%27%3EOctopress%3C%2Fa%3E+%3Ca+href%3D%27http%3A%2F%2FiBlock.github.io%2Fblog%2Fcategories%2Fruby%27+style%3D%27font-size%3A+30.0%25%27%3Eruby%3C%2Fa%3E+%3Ca+href%3D%27http%3A%2F%2FiBlock.github.io%2Fblog%2Fcategories%2Fhuan-jing-da-jian%27+style%3D%27font-size%3A+50.0%25%27%3E%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA%3C%2Fa%3E+%3Ca+href%3D%27http%3A%2F%2FiBlock.github.io%2Fblog%2Fcategories%2Fdi-san-fang-ku%27+style%3D%27font-size%3A+30.0%25%27%3E%E7%AC%AC%E4%B8%89%E6%96%B9%E5%BA%93%3C%2Fa%3E+%3C%2Ftags%3E"></span>
+</section>
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2014 - iBlock -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>
