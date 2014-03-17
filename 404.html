@@ -9,7 +9,7 @@
   <meta name="author" content="iBlock">
 
   
-  <meta name="description" content=" 404 Error Apr 21st, 2013 最近发表 KVOController类库使用学习 搭建Octopress博客后cocoaPod无法使用问题记录 Octopress博客开博 文章分类 环境搭建 第三方库 Tag Cloud ">
+  <meta name="description" content="404 Error Apr 21st, 2013 最近发表 KVOController类库使用学习 搭建Octopress博客后cocoaPod无法使用问题记录 Octopress博客开博 文章分类 环境搭建 第三方库 Tag Cloud GitHub Repos Status updating &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -148,6 +148,35 @@ $(document).bind('DOMNodeInserted', function(event) {
     <span id="tag-cloud"><embed type='application/x-shockwave-flash' src='/javascripts/tagcloud.swf'width='100%' height='250' bgcolor='#f2f2f2' id='tagcloudflash' name='tagcloudflash' quality='high' allowscriptaccess='always'flashvars="tcolor=0x333333&amp;tcolor2=0x333333&amp;hicolor=0x000000&amp;tspeed=100&amp;distr=true&amp;mode=tags&amp;tagcloud=%3Ctags%3E%3Ca+href%3D%27http%3A%2F%2FiBlock.github.io%2Fblog%2Fcategories%2Fcocoapod%27+style%3D%27font-size%3A+30.0%25%27%3Ecocoapod%3C%2Fa%3E+%3Ca+href%3D%27http%3A%2F%2FiBlock.github.io%2Fblog%2Fcategories%2Fkvocontroller%27+style%3D%27font-size%3A+30.0%25%27%3EKVOController%3C%2Fa%3E+%3Ca+href%3D%27http%3A%2F%2FiBlock.github.io%2Fblog%2Fcategories%2Fobject-c%27+style%3D%27font-size%3A+30.0%25%27%3EObject-C%3C%2Fa%3E+%3Ca+href%3D%27http%3A%2F%2FiBlock.github.io%2Fblog%2Fcategories%2Foctopress%27+style%3D%27font-size%3A+30.0%25%27%3EOctopress%3C%2Fa%3E+%3Ca+href%3D%27http%3A%2F%2FiBlock.github.io%2Fblog%2Fcategories%2Fruby%27+style%3D%27font-size%3A+30.0%25%27%3Eruby%3C%2Fa%3E+%3Ca+href%3D%27http%3A%2F%2FiBlock.github.io%2Fblog%2Fcategories%2Fhuan-jing-da-jian%27+style%3D%27font-size%3A+50.0%25%27%3E%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA%3C%2Fa%3E+%3Ca+href%3D%27http%3A%2F%2FiBlock.github.io%2Fblog%2Fcategories%2Fdi-san-fang-ku%27+style%3D%27font-size%3A+30.0%25%27%3E%E7%AC%AC%E4%B8%89%E6%96%B9%E5%BA%93%3C%2Fa%3E+%3C%2Ftags%3E"></span>
 </section>
 
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+  
+  <a href="https://github.com/iblock">@iblock</a> on GitHub
+  
+  <script type="text/javascript">
+    $(document).ready(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'iblock',
+            count: 0,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
 
 
   
