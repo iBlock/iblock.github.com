@@ -3,7 +3,7 @@ layout: post
 title: "KVOController类库使用学习"
 date: 2014-03-17 17:29:07 +0800
 comments: true
-categories: [Object-C, KVOController, 第三方库]
+categories: [Objective-C, KVOController, 第三方库]
 
 ---
 
