@@ -4,7 +4,7 @@
   <title><![CDATA[iBlock的博客]]></title>
   <link href="http://iBlock.github.io/atom.xml" rel="self"/>
   <link href="http://iBlock.github.io/"/>
-  <updated>2014-03-17T22:31:31+08:00</updated>
+  <updated>2014-04-04T16:32:18+08:00</updated>
   <id>http://iBlock.github.io/</id>
   <author>
     <name><![CDATA[iBlock]]></name>
@@ -12,6 +12,205 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[IOS7.1 企业应用无法安装解决方案]]></title>
+    <link href="http://iBlock.github.io/blog/2014/04/04/ios7-dot-1-qi-ye-ying-yong-wu-fa-an-zhuang-jie-jue-fang-an/"/>
+    <updated>2014-04-04T15:34:33+08:00</updated>
+    <id>http://iBlock.github.io/blog/2014/04/04/ios7-dot-1-qi-ye-ying-yong-wu-fa-an-zhuang-jie-jue-fang-an</id>
+    <content type="html"><![CDATA[<p>本文章为转载，主要参考<a href="http://blog.csdn.net/zhaoxy_thu/article/details/21133399">&ldquo;这里&rdquo;</a>。</p>
+
+<p>最近有人反馈说公司网站上发布的IOS应用下载时提示证书错误，无法下载，于是我用我的手机试了下却发现可以正常下载，和有问题的手机比较排查了下发现只要是升级到了IOS7.1系统的iPhone手机都无法下载，之前的都是可以正常下载的，在网上搜了下解决方案，果然是因为这个，简单的说就是ios7.1要安装企业应用，url必须是https的，不能是http，这就要求服务器需要支持https。因此只要将原链接：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='text'><span class='line'>itms-services://?action=download-manifest&amp;url=http://example.com/manifest.plist
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>改为：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='text'><span class='line'>itms-services://?action=download-manifest&amp;url=https://example.com/manifest.plist
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>即可。</p>
+
+<p>对于服务器，则需要增加对https的支持，下面我就将我搭建的步骤记录一下。</p>
+
+<!--more-->
+
+
+<h3>一、安装配有SSL模块的apache版本</h3>
+
+<p>本人使用的是<a href="http://mirrors.hust.edu.cn/apache//httpd/binaries/win32/httpd-2.0.65-win32-x86-openssl-0.9.8y.msi">httpd-2.0.65-win32-x86-openssl-0.9.8y.msi</a>
+点击上面链接下载安装，安装过程较为简单，在这里就不做说明了。</p>
+
+<h3>二、修改apache的配置文件</h3>
+
+<p>1、找到apache安装目录下的conf/httpd.conf，打开文件，去掉以下内容前的#号</p>
+
+<figure class='code'><figcaption><span>httpd.conf </span></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='text'><span class='line'>LoadModule ssl_module modules/mod_ssl.so
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>并在文件最后加上：</p>
+
+<figure class='code'><figcaption><span>httpd.conf </span></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='text'><span class='line'>&lt;VirtualHost *:8080&gt;
+</span><span class='line'>    ServerAdmin xxx@xxx.com（随意）
+</span><span class='line'>    DocumentRoot C:/Server（服务器根目录）
+</span><span class='line'>    ServerName 192.168.xxx.xxx（服务器域名或ip地址）
+</span><span class='line'>    ErrorLog logs/test-error_log
+</span><span class='line'>    CustomLog logs/test-access_log common
+</span><span class='line'>    SSLEngine on
+</span><span class='line'>    SSLCertificateFile &quot;C:/Program Files/Apache Group/Apache2/conf/ssl.crt/server.crt&quot;（之后生成证书的完整路径）
+</span><span class='line'>    SSLCertificateKeyFile &quot;C:/Program Files/Apache Group/Apache2/conf/ssl.key/server.key&quot; （之后生成密钥的完整路径）
+</span><span class='line'>&lt;/VirtualHost&gt;
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>2、修改conf/ssl.conf文件的以下内容：（以下为修改完的，可参考）</p>
+
+<figure class='code'><figcaption><span>ssl.conf </span></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='text'><span class='line'>#SSLSessionCache        none
+</span><span class='line'>#SSLSessionCache        shmht:logs/ssl_scache(512000)
+</span><span class='line'>SSLSessionCache        shmcb:logs/ssl_scache(512000)
+</span><span class='line'>#SSLSessionCache         dbm:logs/ssl_scache
+</span><span class='line'>...
+</span><span class='line'>SSLCertificateFile conf/ssl.crt/server.crt
+</span><span class='line'>...
+</span><span class='line'>SSLCertificateKeyFile conf/ssl.key/server.key
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>3、在conf目录下创建ssl.crt和ssl.key目录（不创建也行，只要保证以上两个路径和之后的文件路径对应即可）</p>
+
+<h3>三、在命令行下切换到apache目录下的bin目录，运行以下命令</h3>
+
+<p>1、生成服务器的私钥</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='text'><span class='line'>openssl genrsa -out server.key 1024
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>以上命令会在bin目录下生成server.key文件</p>
+
+<p>2、生成签署申请</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='text'><span class='line'>openssl req -new –out server.csr -key server.key -config ..\conf\openssl.cnf
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>输入以上命令回车后会开始让你填入相关信息。（注意除Common Name以外可以为空，Common Name必须为服务器的ip或域名）执行完后会在当前目录下生成server.csr文件</p>
+
+<p>3、生成私钥</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='text'><span class='line'>openssl genrsa  -out ca.key 1024
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>上面命令会在当前目录下生成ca.key文件</p>
+
+<p>4、利用CA的私钥产生CA的自签署证书</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='text'><span class='line'>openssl req  -new -x509 -days 365 -key ca.key -out ca.crt  -config ..\conf\openssl.cnf
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>输入以上命令回车后会开始让你填入相关信息。（注意除Common Name以外可以为空，Common Name必须为服务器的ip或域名）执行完后会在当前目录下生成ca.crt文件</p>
+
+<p>5、在当前目录创建demoCA，里面创建文件index.txt和serial，serial内容为01，index.txt为空，以及文件夹newcerts</p>
+
+<p>6、CA为网站服务器签署证书</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='text'><span class='line'>openssl ca -in server.csr -out server.crt -cert ca.crt -keyfile ca.key -config ..\conf\openssl.cnf
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>上面的命令会在当前目录下生成server.crt文件</p>
+
+<p>7、最后将server.crt和server.key复制到上文对应的路径下</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='text'><span class='line'>conf/ssl.crt/server.crt
+</span><span class='line'>conf/ssl.key/server.key
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>8、重启Apache服务器，即增加了https的支持。可以在浏览器访问<a href="https://localhost:8080">https://localhost:8080</a>试试。如果不行，可以在logs\test-error_log文件中看看出了什么错误。</p>
+
+<h3>四、将CA证书安装到iPhone上</h3>
+
+<p>最后，我们要将自己创建的CA证书安装到iphone上。将上面生成的ca.crt文件通过以下方式安装到iPhone手机上：</p>
+
+<p>1、邮件方式，用iPhone自带的Mail程序打开（别的邮件客户端不行）</p>
+
+<p>2、将证书放到发布应用的网站上，用safari浏览器打开并安装证书</p>
+
+<p>安装完证书后再次访问我们之前的itms-services链接，就可以正常安装了。</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[IOS Provisioning Profiles描述文件到期解决方法]]></title>
+    <link href="http://iBlock.github.io/blog/2014/04/03/ios-provisioning-profilesmiao-shu-wen-jian-dao-qi-jie-jue-fang-fa/"/>
+    <updated>2014-04-03T23:40:19+08:00</updated>
+    <id>http://iBlock.github.io/blog/2014/04/03/ios-provisioning-profilesmiao-shu-wen-jian-dao-qi-jie-jue-fang-fa</id>
+    <content type="html"><![CDATA[<p>从上周开始，公司陆续有人跟我说发布在公司网站上的IOS应用程序无法下载安装，提示172.16.xx.xxx证书无效，起初我没在意，后来又有人跟我反应说安全应用客户端在iPhone上打开闪退，前两天还能正常使用。这接二连三的异常现象让我不得不开始重视起来，自从公司的安全客户端某个版本发布后一直就没动过了，怎么最近开始出现这种异常问题，而且是有的说是下载不了，有的说是在iphone上打开就闪退，我开始排查问题，到今天为止把问题都解决了，做个记录。本篇文章主要解决客户端在iPhone上闪退的问题。</p>
+
+<!--more-->
+
+
+<p>经过问题排查最后发现闪退现象是因为Provisioning Profiles描述文件到期了，之前打包时使用的Provisioning Profiles文件于2013年3月27日到期，所以3月27日之后用户打开应用由于文件到期导致应用直接闪退。解决这个问题很简单，首先登录苹果开发者网站，找到Provisioning Profiles，因为是打包文件，所以选择Distribution，如下图所示：</p>
+
+<p><img src="http://iBlock.github.io/images/2014/04/04/Provisioning%20Profiles.png" title="Provisioning Profiles" alt="alt text" /></p>
+
+<p>找到之前的描述文件，这个时候只要将之前的描述文件重新生成一下即可，不用重新新建一个描述文件。重新生成之后描述文件的日期将会延后一年，然后将这个描述文件下载到本地，导入到你要打包的机器上，然后重新打一个包，让之前应用打开会闪退的iPhone手机重新安装新打的包即可。仅仅是为了记录一下，避免以后再次出现这种问题又花费时间排查。</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[NSString类方法使用记录]]></title>
+    <link href="http://iBlock.github.io/blog/2014/04/03/nsstringlei-fang-fa-shi-yong-ji-lu/"/>
+    <updated>2014-04-03T23:12:44+08:00</updated>
+    <id>http://iBlock.github.io/blog/2014/04/03/nsstringlei-fang-fa-shi-yong-ji-lu</id>
+    <content type="html"><![CDATA[<p>这篇博客主要用来记录我在IOS编程中使用过的NSString方法，每用到一个之前没用过的方法就会进行记录，所以这篇博客会不断进行更新。</p>
+
+<!--more-->
+
+
+<h2>初始化方法</h2>
+
+<h4>1、</h4>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[KVOController类库使用学习]]></title>
@@ -390,7 +589,7 @@
     <link href="http://iBlock.github.io/blog/2014/03/10/octopressbo-ke-kai-bo/"/>
     <updated>2014-03-10T22:06:21+08:00</updated>
     <id>http://iBlock.github.io/blog/2014/03/10/octopressbo-ke-kai-bo</id>
-    <content type="html"><![CDATA[<p><img src="http://iBlock.github.io/images/20140310/octopress.png" title="octopress" alt="alt text" /></p>
+    <content type="html"><![CDATA[<p><img src="http://iBlock.github.io/images/2014/03/10/octopress.png" title="octopress" alt="alt text" /></p>
 
 <h2>前言</h2>
 

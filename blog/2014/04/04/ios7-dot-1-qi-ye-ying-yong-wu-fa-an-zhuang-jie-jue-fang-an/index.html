@@ -5,11 +5,11 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>搭建Octopress博客后cocoaPod无法使用问题记录 - iBlock的博客</title>
+  <title>IOS7.1 企业应用无法安装解决方案 - iBlock的博客</title>
   <meta name="author" content="iBlock">
 
   
-  <meta name="description" content="今天在用pod安装第三方依赖库时发现pod无法使用了，出现类似下面错误： naxiannantekiMacBook-Pro:~ iBlock$ pod search/Library/Ruby/Site/2.0.0/rubygems/dependency.rb:298:in to_specs&# &hellip;">
+  <meta name="description" content="本文章为转载，主要参考&ldquo;这里&rdquo;。 最近有人反馈说公司网站上发布的IOS应用下载时提示证书错误，无法下载，于是我用我的手机试了下却发现可以正常下载，和有问题的手机比较排查了下发现只要是升级到了IOS7.1系统的iPhone手机都无法下载，之前的都是可以正常下载的， &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -18,7 +18,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://iBlock.github.io/blog/2014/03/12/da-jian-octopressbo-ke-hou-cocoapodwu-fa-shi-yong-wen-ti-ji-lu">
+  <link rel="canonical" href="http://iBlock.github.io/blog/2014/04/04/ios7-dot-1-qi-ye-ying-yong-wu-fa-an-zhuang-jie-jue-fang-an">
   <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
   <link href="/atom.xml" rel="alternate" title="iBlock的博客" type="application/atom+xml">
@@ -87,7 +87,7 @@ $(document).bind('DOMNodeInserted', function(event) {
   
   <header>
     
-      <h1 class="entry-title">搭建Octopress博客后cocoaPod无法使用问题记录</h1>
+      <h1 class="entry-title">IOS7.1 企业应用无法安装解决方案</h1>
     
     
       <p class="meta">
@@ -103,72 +103,170 @@ $(document).bind('DOMNodeInserted', function(event) {
   
 
 
-<time datetime="2014-03-12T22:48:51+08:00" pubdate data-updated="true">Mar 12<span>th</span>, 2014</time>
+<time datetime="2014-04-04T15:34:33+08:00" pubdate data-updated="true">Apr 4<span>th</span>, 2014</time>
         
       </p>
     
   </header>
 
 
-<div class="entry-content"><p>今天在用pod安装第三方依赖库时发现pod无法使用了，出现类似下面错误：</p>
+<div class="entry-content"><p>本文章为转载，主要参考<a href="http://blog.csdn.net/zhaoxy_thu/article/details/21133399">&ldquo;这里&rdquo;</a>。</p>
 
-<blockquote><p>naxiannantekiMacBook-Pro:~ iBlock$ pod search<br/>/Library/Ruby/Site/2.0.0/rubygems/dependency.rb:298:in to_specs&#8217;: Could not find &#8216;cocoapods&#8217; (>= 0) among 48 total gem(s) (Gem::LoadError)<br/>from /Library/Ruby/Site/2.0.0/rubygems/dependency.rb:309:into_spec&#8217;<br/>from /Library/Ruby/Site/2.0.0/rubygems/core_ext/kernel_gem.rb:53:in gem&#8217;<br/>from /usr/bin/pod:22:in</p></blockquote>
+<p>最近有人反馈说公司网站上发布的IOS应用下载时提示证书错误，无法下载，于是我用我的手机试了下却发现可以正常下载，和有问题的手机比较排查了下发现只要是升级到了IOS7.1系统的iPhone手机都无法下载，之前的都是可以正常下载的，在网上搜了下解决方案，果然是因为这个，简单的说就是ios7.1要安装企业应用，url必须是https的，不能是http，这就要求服务器需要支持https。因此只要将原链接：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='text'><span class='line'>itms-services://?action=download-manifest&amp;url=http://example.com/manifest.plist
+</span></code></pre></td></tr></table></div></figure>
 
 
-<p>看错误应该是ruby版本问题造成的，回想了下之前搭建octopress博客由于需要ruby1.9.3的环境，所以根据要求进行了安装，而cocopod需要的ruby是其它版本，估计是搭建Octopress博客时安装ruby1.9.3不知哪个步骤操作有误导致ruby2.0.0出现了问题，于是开始着手解决问题。</p>
+<p>改为：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='text'><span class='line'>itms-services://?action=download-manifest&amp;url=https://example.com/manifest.plist
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>即可。</p>
+
+<p>对于服务器，则需要增加对https的支持，下面我就将我搭建的步骤记录一下。</p>
 
 <!--more-->
 
 
-<p>首先输入下面命令查看ruby版本：</p>
+<h3>一、安装配有SSL模块的apache版本</h3>
+
+<p>本人使用的是<a href="http://mirrors.hust.edu.cn/apache//httpd/binaries/win32/httpd-2.0.65-win32-x86-openssl-0.9.8y.msi">httpd-2.0.65-win32-x86-openssl-0.9.8y.msi</a>
+点击上面链接下载安装，安装过程较为简单，在这里就不做说明了。</p>
+
+<h3>二、修改apache的配置文件</h3>
+
+<p>1、找到apache安装目录下的conf/httpd.conf，打开文件，去掉以下内容前的#号</p>
+
+<figure class='code'><figcaption><span>httpd.conf </span></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='text'><span class='line'>LoadModule ssl_module modules/mod_ssl.so
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>并在文件最后加上：</p>
+
+<figure class='code'><figcaption><span>httpd.conf </span></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='text'><span class='line'>&lt;VirtualHost *:8080&gt;
+</span><span class='line'>    ServerAdmin xxx@xxx.com（随意）
+</span><span class='line'>    DocumentRoot C:/Server（服务器根目录）
+</span><span class='line'>    ServerName 192.168.xxx.xxx（服务器域名或ip地址）
+</span><span class='line'>    ErrorLog logs/test-error_log
+</span><span class='line'>    CustomLog logs/test-access_log common
+</span><span class='line'>    SSLEngine on
+</span><span class='line'>    SSLCertificateFile &quot;C:/Program Files/Apache Group/Apache2/conf/ssl.crt/server.crt&quot;（之后生成证书的完整路径）
+</span><span class='line'>    SSLCertificateKeyFile &quot;C:/Program Files/Apache Group/Apache2/conf/ssl.key/server.key&quot; （之后生成密钥的完整路径）
+</span><span class='line'>&lt;/VirtualHost&gt;
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>2、修改conf/ssl.conf文件的以下内容：（以下为修改完的，可参考）</p>
+
+<figure class='code'><figcaption><span>ssl.conf </span></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='text'><span class='line'>#SSLSessionCache        none
+</span><span class='line'>#SSLSessionCache        shmht:logs/ssl_scache(512000)
+</span><span class='line'>SSLSessionCache        shmcb:logs/ssl_scache(512000)
+</span><span class='line'>#SSLSessionCache         dbm:logs/ssl_scache
+</span><span class='line'>...
+</span><span class='line'>SSLCertificateFile conf/ssl.crt/server.crt
+</span><span class='line'>...
+</span><span class='line'>SSLCertificateKeyFile conf/ssl.key/server.key
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>3、在conf目录下创建ssl.crt和ssl.key目录（不创建也行，只要保证以上两个路径和之后的文件路径对应即可）</p>
+
+<h3>三、在命令行下切换到apache目录下的bin目录，运行以下命令</h3>
+
+<p>1、生成服务器的私钥</p>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>ruby --version</span></code></pre></td></tr></table></div></figure>
+</pre></td><td class='code'><pre><code class='text'><span class='line'>openssl genrsa -out server.key 1024
+</span></code></pre></td></tr></table></div></figure>
 
 
-<p>显示如下：</p>
+<p>以上命令会在bin目录下生成server.key文件</p>
 
-<blockquote><p>ruby 1.9.3p545 (2014-02-24 revision 45159) [x86_64-darwin13.0.0]</p></blockquote>
-
-<p>看看当前系统上已安装的ruby版本列表：</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>rvm list</span></code></pre></td></tr></table></div></figure>
-
-
-<p>得到的结果如下：</p>
-
-<blockquote><p>rvm rubies</p><p>   ruby-1.9.3-p545 [ x86_64 ]<br/>   ruby-2.0.0-p451 [ x86_64 ]<br/>=* ruby-2.1.1 [ x86_64 ]</p><p># => - current<br/># =* - current && default<br/>#  * - default</p></blockquote>
-
-
-<p>发现ruby2.0.0版本是有的，切换ruby版本：</p>
+<p>2、生成签署申请</p>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>rvm use ruby 2.0.0</span></code></pre></td></tr></table></div></figure>
+</pre></td><td class='code'><pre><code class='text'><span class='line'>openssl req -new –out server.csr -key server.key -config ..\conf\openssl.cnf
+</span></code></pre></td></tr></table></div></figure>
 
 
-<p>出错，错误码忘了保留了，总之提示ruby2.0.0版本有问题，输入以下命令重装下ruby2.0.0版本：</p>
+<p>输入以上命令回车后会开始让你填入相关信息。（注意除Common Name以外可以为空，Common Name必须为服务器的ip或域名）执行完后会在当前目录下生成server.csr文件</p>
 
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>rvm reinstall ruby-2.0.0</span></code></pre></td></tr></table></div></figure>
-
-
-<p>该命令会将之前的ruby2.0.0版本删除重新下载安装。完成后切换到2.0.0版本，尝试使用pod search asiHttpRequest命令，发现还是有问题，差点就想重装下cocoapod，但是看到了cocoapod的升级命令，试试看能否升级修复下，如是输入：</p>
+<p>3、生成私钥</p>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>sudo gem install cocoapods</span></code></pre></td></tr></table></div></figure>
+</pre></td><td class='code'><pre><code class='text'><span class='line'>openssl genrsa  -out ca.key 1024
+</span></code></pre></td></tr></table></div></figure>
 
 
-<p>命令完成后，再次输入pod search asiHttpRequest，成功了，输出如下内容：</p>
+<p>上面命令会在当前目录下生成ca.key文件</p>
 
-<blockquote><p>-> ASIHTTPRequest (1.8.1)<br/>   Easy to use CFNetwork wrapper for HTTP requests, Objective-C, Mac OS X and<br/>   iPhone.<br/>   pod &#8216;ASIHTTPRequest&#8217;, &#8216;~> 1.8.1&#8217;<br/>   - Homepage: http://allseeing-i.com/ASIHTTPRequest<br/>   - Source:   https://github.com/pokeb/asi-http-request.git<br/>   - Versions: 1.8.1 [master repo]<br/>   - Sub specs:<br/>     - ASIHTTPRequest/Core (1.8.1)<br/>     - ASIHTTPRequest/ASIWebPageRequest (1.8.1)<br/>     - ASIHTTPRequest/CloudFiles (1.8.1)<br/>     - ASIHTTPRequest/S3 (1.8.1)</p></blockquote>
-
-
-<p>当想使用octopress的rake功能时只要使用如下命令切换ruby版本即可，OK，大功告成，记录一下。</p>
+<p>4、利用CA的私钥产生CA的自签署证书</p>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>rvm use 1.9.3</span></code></pre></td></tr></table></div></figure>
+</pre></td><td class='code'><pre><code class='text'><span class='line'>openssl req  -new -x509 -days 365 -key ca.key -out ca.crt  -config ..\conf\openssl.cnf
+</span></code></pre></td></tr></table></div></figure>
 
+
+<p>输入以上命令回车后会开始让你填入相关信息。（注意除Common Name以外可以为空，Common Name必须为服务器的ip或域名）执行完后会在当前目录下生成ca.crt文件</p>
+
+<p>5、在当前目录创建demoCA，里面创建文件index.txt和serial，serial内容为01，index.txt为空，以及文件夹newcerts</p>
+
+<p>6、CA为网站服务器签署证书</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='text'><span class='line'>openssl ca -in server.csr -out server.crt -cert ca.crt -keyfile ca.key -config ..\conf\openssl.cnf
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>上面的命令会在当前目录下生成server.crt文件</p>
+
+<p>7、最后将server.crt和server.key复制到上文对应的路径下</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='text'><span class='line'>conf/ssl.crt/server.crt
+</span><span class='line'>conf/ssl.key/server.key
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>8、重启Apache服务器，即增加了https的支持。可以在浏览器访问<a href="https://localhost:8080">https://localhost:8080</a>试试。如果不行，可以在logs\test-error_log文件中看看出了什么错误。</p>
+
+<h3>四、将CA证书安装到iPhone上</h3>
+
+<p>最后，我们要将自己创建的CA证书安装到iphone上。将上面生成的ca.crt文件通过以下方式安装到iPhone手机上：</p>
+
+<p>1、邮件方式，用iPhone自带的Mail程序打开（别的邮件客户端不行）</p>
+
+<p>2、将证书放到发布应用的网站上，用safari浏览器打开并安装证书</p>
+
+<p>安装完证书后再次访问我们之前的itms-services链接，就可以正常安装了。</p>
 </div>
 
 
@@ -191,12 +289,12 @@ $(document).bind('DOMNodeInserted', function(event) {
   
 
 
-<time datetime="2014-03-12T22:48:51+08:00" pubdate data-updated="true">Mar 12<span>th</span>, 2014</time>
+<time datetime="2014-04-04T15:34:33+08:00" pubdate data-updated="true">Apr 4<span>th</span>, 2014</time>
       
 
 <span class="categories">
   
-    <a class='category' href='/blog/categories/cocoapod/'>cocoapod</a>, <a class='category' href='/blog/categories/ruby/'>ruby</a>, <a class='category' href='/blog/categories/huan-jing-da-jian/'>环境搭建</a>
+    <a class='category' href='/blog/categories/huan-jing-da-jian/'>环境搭建</a>, <a class='category' href='/blog/categories/ping-guo-zheng-shu-xiang-guan/'>苹果证书相关</a>
   
 </span>
 
@@ -225,10 +323,8 @@ $(document).bind('DOMNodeInserted', function(event) {
     
     <p class="meta">
       
-        <a class="basic-alignment left" href="/blog/2014/03/10/octopressbo-ke-kai-bo/" title="Previous Post: Octopress博客开博">&laquo; Octopress博客开博</a>
+        <a class="basic-alignment left" href="/blog/2014/04/03/ios-provisioning-profilesmiao-shu-wen-jian-dao-qi-jie-jue-fang-fa/" title="Previous Post: IOS Provisioning Profiles描述文件到期解决方法">&laquo; IOS Provisioning Profiles描述文件到期解决方法</a>
       
-      
-        <a class="basic-alignment right" href="/blog/2014/03/17/kvocontrollerlei-ku-shi-yong-xue-xi/" title="Next Post: KVOController类库使用学习">KVOController类库使用学习 &raquo;</a>
       
     </p>
   </footer>

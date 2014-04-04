@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: API | iBlock的博客]]></title>
+  <link href="http://iBlock.github.io/blog/categories/api/atom.xml" rel="self"/>
+  <link href="http://iBlock.github.io/"/>
+  <updated>2014-04-04T16:32:18+08:00</updated>
+  <id>http://iBlock.github.io/</id>
+  <author>
+    <name><![CDATA[iBlock]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[NSString类方法使用记录]]></title>
+    <link href="http://iBlock.github.io/blog/2014/04/03/nsstringlei-fang-fa-shi-yong-ji-lu/"/>
+    <updated>2014-04-03T23:12:44+08:00</updated>
+    <id>http://iBlock.github.io/blog/2014/04/03/nsstringlei-fang-fa-shi-yong-ji-lu</id>
+    <content type="html"><![CDATA[<p>这篇博客主要用来记录我在IOS编程中使用过的NSString方法，每用到一个之前没用过的方法就会进行记录，所以这篇博客会不断进行更新。</p>
+
+<!--more-->
+
+
+<h2>初始化方法</h2>
+
+<h4>1、</h4>
+]]></content>
+  </entry>
+  
+</feed>

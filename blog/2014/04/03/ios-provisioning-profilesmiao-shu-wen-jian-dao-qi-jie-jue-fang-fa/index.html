@@ -5,11 +5,11 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>搭建Octopress博客后cocoaPod无法使用问题记录 - iBlock的博客</title>
+  <title>IOS Provisioning Profiles描述文件到期解决方法 - iBlock的博客</title>
   <meta name="author" content="iBlock">
 
   
-  <meta name="description" content="今天在用pod安装第三方依赖库时发现pod无法使用了，出现类似下面错误： naxiannantekiMacBook-Pro:~ iBlock$ pod search/Library/Ruby/Site/2.0.0/rubygems/dependency.rb:298:in to_specs&# &hellip;">
+  <meta name="description" content="从上周开始，公司陆续有人跟我说发布在公司网站上的IOS应用程序无法下载安装，提示172.16.xx.xxx证书无效，起初我没在意，后来又有人跟我反应说安全应用客户端在iPhone上打开闪退，前两天还能正常使用。这接二连三的异常现象让我不得不开始重视起来， &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -18,7 +18,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://iBlock.github.io/blog/2014/03/12/da-jian-octopressbo-ke-hou-cocoapodwu-fa-shi-yong-wen-ti-ji-lu">
+  <link rel="canonical" href="http://iBlock.github.io/blog/2014/04/03/ios-provisioning-profilesmiao-shu-wen-jian-dao-qi-jie-jue-fang-fa">
   <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
   <link href="/atom.xml" rel="alternate" title="iBlock的博客" type="application/atom+xml">
@@ -87,7 +87,7 @@ $(document).bind('DOMNodeInserted', function(event) {
   
   <header>
     
-      <h1 class="entry-title">搭建Octopress博客后cocoaPod无法使用问题记录</h1>
+      <h1 class="entry-title">IOS Provisioning Profiles描述文件到期解决方法</h1>
     
     
       <p class="meta">
@@ -103,72 +103,23 @@ $(document).bind('DOMNodeInserted', function(event) {
   
 
 
-<time datetime="2014-03-12T22:48:51+08:00" pubdate data-updated="true">Mar 12<span>th</span>, 2014</time>
+<time datetime="2014-04-03T23:40:19+08:00" pubdate data-updated="true">Apr 3<span>rd</span>, 2014</time>
         
       </p>
     
   </header>
 
 
-<div class="entry-content"><p>今天在用pod安装第三方依赖库时发现pod无法使用了，出现类似下面错误：</p>
-
-<blockquote><p>naxiannantekiMacBook-Pro:~ iBlock$ pod search<br/>/Library/Ruby/Site/2.0.0/rubygems/dependency.rb:298:in to_specs&#8217;: Could not find &#8216;cocoapods&#8217; (>= 0) among 48 total gem(s) (Gem::LoadError)<br/>from /Library/Ruby/Site/2.0.0/rubygems/dependency.rb:309:into_spec&#8217;<br/>from /Library/Ruby/Site/2.0.0/rubygems/core_ext/kernel_gem.rb:53:in gem&#8217;<br/>from /usr/bin/pod:22:in</p></blockquote>
-
-
-<p>看错误应该是ruby版本问题造成的，回想了下之前搭建octopress博客由于需要ruby1.9.3的环境，所以根据要求进行了安装，而cocopod需要的ruby是其它版本，估计是搭建Octopress博客时安装ruby1.9.3不知哪个步骤操作有误导致ruby2.0.0出现了问题，于是开始着手解决问题。</p>
+<div class="entry-content"><p>从上周开始，公司陆续有人跟我说发布在公司网站上的IOS应用程序无法下载安装，提示172.16.xx.xxx证书无效，起初我没在意，后来又有人跟我反应说安全应用客户端在iPhone上打开闪退，前两天还能正常使用。这接二连三的异常现象让我不得不开始重视起来，自从公司的安全客户端某个版本发布后一直就没动过了，怎么最近开始出现这种异常问题，而且是有的说是下载不了，有的说是在iphone上打开就闪退，我开始排查问题，到今天为止把问题都解决了，做个记录。本篇文章主要解决客户端在iPhone上闪退的问题。</p>
 
 <!--more-->
 
 
-<p>首先输入下面命令查看ruby版本：</p>
+<p>经过问题排查最后发现闪退现象是因为Provisioning Profiles描述文件到期了，之前打包时使用的Provisioning Profiles文件于2013年3月27日到期，所以3月27日之后用户打开应用由于文件到期导致应用直接闪退。解决这个问题很简单，首先登录苹果开发者网站，找到Provisioning Profiles，因为是打包文件，所以选择Distribution，如下图所示：</p>
 
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>ruby --version</span></code></pre></td></tr></table></div></figure>
+<p><img src="/images/2014/04/04/Provisioning%20Profiles.png" title="Provisioning Profiles" alt="alt text" /></p>
 
-
-<p>显示如下：</p>
-
-<blockquote><p>ruby 1.9.3p545 (2014-02-24 revision 45159) [x86_64-darwin13.0.0]</p></blockquote>
-
-<p>看看当前系统上已安装的ruby版本列表：</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>rvm list</span></code></pre></td></tr></table></div></figure>
-
-
-<p>得到的结果如下：</p>
-
-<blockquote><p>rvm rubies</p><p>   ruby-1.9.3-p545 [ x86_64 ]<br/>   ruby-2.0.0-p451 [ x86_64 ]<br/>=* ruby-2.1.1 [ x86_64 ]</p><p># => - current<br/># =* - current && default<br/>#  * - default</p></blockquote>
-
-
-<p>发现ruby2.0.0版本是有的，切换ruby版本：</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>rvm use ruby 2.0.0</span></code></pre></td></tr></table></div></figure>
-
-
-<p>出错，错误码忘了保留了，总之提示ruby2.0.0版本有问题，输入以下命令重装下ruby2.0.0版本：</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>rvm reinstall ruby-2.0.0</span></code></pre></td></tr></table></div></figure>
-
-
-<p>该命令会将之前的ruby2.0.0版本删除重新下载安装。完成后切换到2.0.0版本，尝试使用pod search asiHttpRequest命令，发现还是有问题，差点就想重装下cocoapod，但是看到了cocoapod的升级命令，试试看能否升级修复下，如是输入：</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>sudo gem install cocoapods</span></code></pre></td></tr></table></div></figure>
-
-
-<p>命令完成后，再次输入pod search asiHttpRequest，成功了，输出如下内容：</p>
-
-<blockquote><p>-> ASIHTTPRequest (1.8.1)<br/>   Easy to use CFNetwork wrapper for HTTP requests, Objective-C, Mac OS X and<br/>   iPhone.<br/>   pod &#8216;ASIHTTPRequest&#8217;, &#8216;~> 1.8.1&#8217;<br/>   - Homepage: http://allseeing-i.com/ASIHTTPRequest<br/>   - Source:   https://github.com/pokeb/asi-http-request.git<br/>   - Versions: 1.8.1 [master repo]<br/>   - Sub specs:<br/>     - ASIHTTPRequest/Core (1.8.1)<br/>     - ASIHTTPRequest/ASIWebPageRequest (1.8.1)<br/>     - ASIHTTPRequest/CloudFiles (1.8.1)<br/>     - ASIHTTPRequest/S3 (1.8.1)</p></blockquote>
-
-
-<p>当想使用octopress的rake功能时只要使用如下命令切换ruby版本即可，OK，大功告成，记录一下。</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>rvm use 1.9.3</span></code></pre></td></tr></table></div></figure>
-
+<p>找到之前的描述文件，这个时候只要将之前的描述文件重新生成一下即可，不用重新新建一个描述文件。重新生成之后描述文件的日期将会延后一年，然后将这个描述文件下载到本地，导入到你要打包的机器上，然后重新打一个包，让之前应用打开会闪退的iPhone手机重新安装新打的包即可。仅仅是为了记录一下，避免以后再次出现这种问题又花费时间排查。</p>
 </div>
 
 
@@ -191,12 +142,12 @@ $(document).bind('DOMNodeInserted', function(event) {
   
 
 
-<time datetime="2014-03-12T22:48:51+08:00" pubdate data-updated="true">Mar 12<span>th</span>, 2014</time>
+<time datetime="2014-04-03T23:40:19+08:00" pubdate data-updated="true">Apr 3<span>rd</span>, 2014</time>
       
 
 <span class="categories">
   
-    <a class='category' href='/blog/categories/cocoapod/'>cocoapod</a>, <a class='category' href='/blog/categories/ruby/'>ruby</a>, <a class='category' href='/blog/categories/huan-jing-da-jian/'>环境搭建</a>
+    <a class='category' href='/blog/categories/huan-jing-da-jian/'>环境搭建</a>, <a class='category' href='/blog/categories/ping-guo-zheng-shu-xiang-guan/'>苹果证书相关</a>
   
 </span>
 
@@ -225,10 +176,10 @@ $(document).bind('DOMNodeInserted', function(event) {
     
     <p class="meta">
       
-        <a class="basic-alignment left" href="/blog/2014/03/10/octopressbo-ke-kai-bo/" title="Previous Post: Octopress博客开博">&laquo; Octopress博客开博</a>
+        <a class="basic-alignment left" href="/blog/2014/04/03/nsstringlei-fang-fa-shi-yong-ji-lu/" title="Previous Post: NSString类方法使用记录">&laquo; NSString类方法使用记录</a>
       
       
-        <a class="basic-alignment right" href="/blog/2014/03/17/kvocontrollerlei-ku-shi-yong-xue-xi/" title="Next Post: KVOController类库使用学习">KVOController类库使用学习 &raquo;</a>
+        <a class="basic-alignment right" href="/blog/2014/04/04/ios7-dot-1-qi-ye-ying-yong-wu-fa-an-zhuang-jie-jue-fang-an/" title="Next Post: IOS7.1 企业应用无法安装解决方案">IOS7.1 企业应用无法安装解决方案 &raquo;</a>
       
     </p>
   </footer>
