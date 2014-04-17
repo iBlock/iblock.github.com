@@ -1,0 +1,517 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: MailCore2 | iBlock的博客]]></title>
+  <link href="http://iBlock.github.io/blog/categories/mailcore2/atom.xml" rel="self"/>
+  <link href="http://iBlock.github.io/"/>
+  <updated>2014-04-17T19:12:51+08:00</updated>
+  <id>http://iBlock.github.io/</id>
+  <author>
+    <name><![CDATA[iBlock]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[MailCore2邮件类库底层实现分析]]></title>
+    <link href="http://iBlock.github.io/blog/2014/04/17/mailcore2you-jian-lei-ku-di-ceng-shi-xian-fen-xi/"/>
+    <updated>2014-04-17T11:58:15+08:00</updated>
+    <id>http://iBlock.github.io/blog/2014/04/17/mailcore2you-jian-lei-ku-di-ceng-shi-xian-fen-xi</id>
+    <content type="html"><![CDATA[<h2>MailCore2邮件库概述</h2>
+
+<p>MailCore是一个Mac和iOS下的email库。使用它能轻易发送email，支持SMTP, IMAP, POP3以及RFC822。现在，来自Sparrow和MailCore 1.0的开发者们打造了新的MailCore&mdash;MailCore 2!</p>
+
+<p>具体功能如下：</p>
+
+<ul>
+<li>POP, IMAP, and SMTP support</li>
+<li>RFC822 parser and generator</li>
+<li>UI widgets for rendering HTML messages</li>
+<li>Asynchronous APIs with Objective-C blocks</li>
+<li>iOS and Mac support</li>
+<li>Portable core engine in C++</li>
+</ul>
+
+
+<!--more-->
+
+
+<h2>MailCore2邮件库主体</h2>
+
+<p><img src="/images/2014/04/17/MailCore2.png" title="MailCore2" alt="alt text" /></p>
+
+<p>从上图可以看出，LibEtPan这个库才是最核心的库，所有邮件的相关实现功能都是在该库下实现的，MailCore2是C++和Objective-C的混合项目，它先是用C++对底层的LibEtPan作了相对较全面的面向对象封装，这部分C++的封装与LibEtPan一样可以用于Linux和Windows平台上的应用，然后再通过Objective-C继续对C++的这一层进行抽象、封装后供Mac和IOS应用使用。</p>
+
+<h2>LibEtPan</h2>
+
+<h3>LibEtPan分析</h3>
+
+<h4>概述</h4>
+
+<p>LibEtPan是一个处理对邮箱的各种访问需求的库，这个库对IMAP、POP3、SMTP、MBOX、MH等都有良好支持。它采用C语言编写，但可以方便地在C++环境下编译，它是一个跨平台的库，主要运行在MAC、UNIX平台上，这个库在非Windows平台上的表现应该会比Windows平台上要好。
+使用这个库有两种方式：</p>
+
+<ul>
+<li>直接使用底层的函数，这样访问不同的对象时接口也不完全一样，但是代码非常直接，容易读。</li>
+<li>通过IMAP、POP3等各自的driver使用上层封装好了的函数，通过函数指针的形式使得各种方式下的访问接口是一样的，灵活性很高，但是代码读起来就不那么直接了。另外，LibEtPan的上层封装集成了自己实现的缓存和多线程功能。</li>
+</ul>
+
+
+<p>这个库对相关邮件规范的支持情况如下：</p>
+
+<ul>
+<li>IMAP  <br/>
+LibEtPan实现了RFC 2060 VERSION 4rev1定义了的每一条指令。</li>
+<li>POP3  <br/>
+RFC 1939 以及 RFC2449 规定的每一个指令，LibEtPan都进行了实现。RFC 1734 的POP3 认证指令没有实现。</li>
+<li>SMTP  <br/>
+RFC 2821 和 RFC 1891 规定的每一条指令LibetPan都进行了实现。</li>
+</ul>
+
+
+<p>LibetPan对其源代码文件进行了规范和一致的命名，并且保证每个源代码文件的内容与其名字所提示的作用一致，结合其对IMAP的实现，具体而言：</p>
+
+<ul>
+<li>mailimap.[ch] <br/>
+包括实现IMAP相关 RFC 指令的代码。</li>
+<li>mailimap_helper.[ch]  <br/>
+为上述函数提供的helper接口。</li>
+<li>mailmap_types.[ch]<br/>
+包括IMAP实现所需要的类型以及类型的构建函数。</li>
+<li>mailimap_types_helper.[ch]<br/>
+该文件包含一组函数，用来创建使用 IMAP 实现模块时所必须的数据。</li>
+<li>mailimap_socket.[ch]  <br/>
+包含通过 TCP 连接 IMAP 服务器的功能相关的函数。</li>
+<li>mailimap_ssl.[ch] <br/>
+提供了通过 TLS 层连接 IMAP 服务器的函数。</li>
+</ul>
+
+
+<h4>LibEtPan结构说明</h4>
+
+<p><blockquote><p>库 libetpan 的内容庞大,从对邮件的支持上看,从通过 Socket 建立到服务器 的 TCP 连接、到解析邮件的每个字符、到对各种格式和协议的处理,直至针对客 户端应用的封装,libetpan 都做了周到的工作;从对库的封装上看,它不仅提供 了需求对应的功能,还按基础功能->会话->存储这样三个层次对整个库进行了设 计和封装,使得逻辑清晰,有助于调用方的理解和使用。其中,基础功能层以底 层 C 函数的形式提供了对各邮件协议的具体支持;会话层对底层封装了对远程邮 件服务器或者本地文件系统的连接并且维护相关的会话,对上层则利用对底层连 接的封装,按上层(存储/文件夹层)的功能的需要,提供了相应的函数,使得 上层不必考虑连接、会话方面的内容;存储/文件夹层一方面从应用层取得认证 信息并传递到会话层由其自动获取和维护连接,另外则专注于实现邮件存储、文 件夹部分的业务逻辑。</p></blockquote></p>
+
+<p>这个库的完整架构基本是下图这样子,从上到下依次可划分为应用层、存储/文件夹层、会话层、邮件协议支持、 邮件格式支持这样几个层次,通过专门设计的数据结构、函数指针等把各层关联了起来：</p>
+
+<p><img src="/images/2014/04/17/LibEtPan.png" title="LibEtPan" alt="alt text" /></p>
+
+<p>对应上图中的各层,libetpan 分别对存储/文件夹、会话和邮件提供了统称为 driver 的封装工具,隐藏了底层细节,供上层调用。</p>
+
+<h3>LibEtPan库各部分功能说明</h3>
+
+<h4>IMF/MIME</h4>
+
+<p>IMF：Internet Message Format <br/>
+MIME：Multipurpose Internet Mail Extensions</p>
+
+<p>库 libetpan 通过这 2 个模块实现了对邮件中从小到具体字符、大到邮件结构数据的解析,libetpan 还使用这里定义的各种数据结构来封装邮件各部分的数据</p>
+
+<ul>
+<li>IMF部分源代码作用说明<br/>
+<img src="/images/2014/04/17/IMF.png" title="IMF" alt="alt text" /></li>
+<li>MIME部分源代码作用说明
+<img src="/images/2014/04/17/MIME.png" title="MIME" alt="alt text" /></li>
+</ul>
+
+
+<p>libetpan 在取得例如邮件内容这样的文本时,内部进行了良好的缓冲、数据 流处理,从而能够稳定地处理例如邮件内容这样的大数据,避免突然占用大量内 存等引起的异常情况的发生,下面以通过 pop3 方式获取邮件内容功能的实现予以说明:</p>
+
+<p><blockquote><p>在最底层(mailstream_socket.c)通过系统提供的 read 函数读取在socket 通信 的响应,这部分的工作是 OS 完成的,libetpan 只是调用了这个函数把 socket 请 求的响应读到一个 char<em>中,这个内容然后被放到 mailstream 的 char * read_buffer 成员中,然后在 mailstream.c 中一边把 read_buffer 中的内容直接内存拷贝到 MMAPString </em>中,一边把新读取到的内容调整、填充到 read_buffer,最后把响 应结果放到了 mailpop3<em>的 MMAPString * pop3_response_buffer 成员中。在从 mailpop3</em>中实际获取邮件内容时,也是先把内容逐步读取到一个MMAPString<em>, 最后在真正需要的时候才读取到 char</em>中。至于MMAPString,它的实现包含了大量对内存的操作和系统调用,从使用的角度,可以不用深入考虑其细节,只要把它当作一个数据不断增加时容量能自 动增加的字符串即可。</p></blockquote></p>
+
+<h4>对邮件协议的支持</h4>
+
+<ul>
+<li>IMAP  <br/>
+主要的相关文件及其作用参见 2.1.1 节的说明。
+核心数据结构总共有 3 个结构体:mailimap、imap_mailstorage 以及imap_mailstorage_driver。
+Mailimap 定义在在 imapdriver_types.h 中,它的主要成员是关于操作请求的响应、认证和查询当前进度的函数指针这三类：<br/>
+<div class='bogus-wrapper'><notextile><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+</pre></td><td class='code'><pre><code class='c++'><span class='line'><span class="k">struct</span> <span class="n">mailimap</span> <span class="p">{</span><span class="kt">char</span> <span class="o">*</span> <span class="n">imap_response</span><span class="p">;</span><span class="o">/&lt;</span><span class="n">em</span><span class="o">&gt;</span> <span class="n">internals</span> <span class="o">&lt;/</span><span class="n">em</span><span class="o">&gt;/</span><span class="n">mailstream</span> <span class="o">*</span> <span class="n">imap_stream</span><span class="p">;</span>
+</span><span class='line'><span class="n">size_t</span> <span class="n">imap_progr_rate</span><span class="p">;</span><span class="n">progress_function</span> <span class="o">*</span> <span class="n">imap_progr_fun</span><span class="p">;</span>
+</span><span class='line'><span class="n">MMAPString</span> <span class="o">*</span> <span class="n">imap_stream_buffer</span><span class="p">;</span><span class="n">MMAPString</span> <span class="o">*</span> <span class="n">imap_response_buffer</span><span class="p">;</span>
+</span><span class='line'><span class="kt">int</span> <span class="n">imap_state</span><span class="p">;</span><span class="kt">int</span> <span class="n">imap_tag</span><span class="p">;</span><span class="k">struct</span> <span class="n">mailimap_connection_info</span> <span class="o">*</span> <span class="n">imap_connection_info</span><span class="p">;</span>
+</span><span class='line'><span class="k">struct</span> <span class="n">mailimap_selection_info</span> <span class="o">*</span> <span class="n">imap_selection_info</span><span class="p">;</span> <span class="o">&lt;</span><span class="n">br</span><span class="o">/&gt;</span>
+</span><span class='line'><span class="k">struct</span> <span class="n">mailimap_response_info</span> <span class="o">*</span> <span class="n">imap_response_info</span><span class="p">;</span>
+</span><span class='line'><span class="k">struct</span> <span class="p">{</span><span class="kt">void</span> <span class="o">*</span> <span class="n">sasl_conn</span><span class="p">;</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span> <span class="n">sasl_server_fqdn</span><span class="p">;</span>
+</span><span class='line'><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span> <span class="n">sasl_login</span><span class="p">;</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span> <span class="n">sasl_auth_name</span><span class="p">;</span>
+</span><span class='line'><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span> <span class="n">sasl_password</span><span class="p">;</span>
+</span><span class='line'><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span> <span class="n">sasl_realm</span><span class="p">;</span><span class="kt">void</span> <span class="o">*</span> <span class="n">sasl_secret</span><span class="p">;}</span> <span class="n">imap_sasl</span><span class="p">;</span>
+</span><span class='line'><span class="n">time_t</span> <span class="n">imap_idle_timestamp</span><span class="p">;</span>
+</span><span class='line'><span class="n">time_t</span> <span class="n">imap_idle_maxdelay</span><span class="p">;</span><span class="n">mailprogress_function</span> <span class="o">*</span> <span class="n">imap_body_progress_fun</span><span class="p">;</span> <span class="n">mailprogress_function</span> <span class="o">*</span> <span class="n">imap_items_progress_fun</span><span class="p">;</span>
+</span><span class='line'><span class="kt">void</span> <span class="o">*</span> <span class="n">imap_progress_context</span><span class="p">;};</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div></li>
+</ul>
+
+
+<p>imap_mailstorage 在 imapdriver_types.h 中定义了连接 IMAP 服务器的过程中 认证过程需要的数据：  <br/>
+<div class='bogus-wrapper'><notextile><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='c++'><span class='line'><span class="k">struct</span> <span class="n">imap_mailstorage</span> <span class="p">{</span>
+</span><span class='line'><span class="kt">char</span> <span class="o">*</span> <span class="n">imap_servername</span><span class="p">;</span>
+</span><span class='line'><span class="n">uint16_t</span> <span class="n">imap_port</span><span class="p">;</span><span class="kt">char</span> <span class="o">*</span> <span class="n">imap_command</span><span class="p">;</span>
+</span><span class='line'><span class="kt">int</span> <span class="n">imap_connection_type</span><span class="p">;</span><span class="kt">int</span> <span class="n">imap_auth_type</span><span class="p">;</span><span class="kt">char</span> <span class="o">*</span> <span class="n">imap_login</span><span class="p">;</span> <span class="o">/&lt;</span><span class="n">em</span><span class="o">&gt;</span> <span class="n">deprecated</span> <span class="o">&lt;/</span><span class="n">em</span><span class="o">&gt;/</span><span class="kt">char</span> <span class="o">*</span> <span class="n">imap_password</span><span class="p">;</span> <span class="o">/&lt;</span><span class="n">em</span><span class="o">&gt;</span> <span class="n">deprecated</span> <span class="o">&lt;/</span><span class="n">em</span><span class="o">&gt;/</span><span class="kt">int</span> <span class="n">imap_cached</span><span class="p">;</span><span class="kt">char</span> <span class="o">*</span> <span class="n">imap_cache_directory</span><span class="p">;</span>
+</span><span class='line'><span class="k">struct</span> <span class="p">{</span><span class="kt">int</span> <span class="n">sasl_enabled</span><span class="p">;</span><span class="kt">char</span> <span class="o">*</span> <span class="n">sasl_auth_type</span><span class="p">;</span><span class="kt">char</span> <span class="o">*</span> <span class="n">sasl_server_fqdn</span><span class="p">;</span>
+</span><span class='line'><span class="kt">char</span> <span class="o">*</span> <span class="n">sasl_local_ip_port</span><span class="p">;</span>
+</span><span class='line'><span class="kt">char</span> <span class="o">*</span> <span class="n">sasl_remote_ip_port</span><span class="p">;</span>
+</span><span class='line'><span class="kt">char</span> <span class="o">*</span> <span class="n">sasl_login</span><span class="p">;</span><span class="kt">char</span> <span class="o">*</span> <span class="n">sasl_auth_name</span><span class="p">;</span>
+</span><span class='line'><span class="kt">char</span> <span class="o">*</span> <span class="n">sasl_password</span><span class="p">;</span><span class="kt">char</span> <span class="o">*</span> <span class="n">sasl_realm</span><span class="p">;}</span> <span class="n">imap_sasl</span><span class="p">;</span>
+</span><span class='line'><span class="kt">char</span> <span class="o">*</span> <span class="n">imap_local_address</span><span class="p">;</span><span class="n">uint16_t</span> <span class="n">imap_local_port</span><span class="p">;</span> <span class="p">};</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<p>imap_mailstorage_driver 在 imapstorage.c 中定义了符合统一接口 mailstorage_driver 的要求的一组函数指针：</p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='c++'><span class='line'><span class="k">static</span> <span class="n">mailstorage_driver</span> <span class="n">imap_mailstorage_driver</span> <span class="o">=</span> <span class="p">{</span><span class="err">￼</span><span class="o">/&lt;</span><span class="n">em</span><span class="o">&gt;</span> <span class="n">sto_name</span> <span class="o">&lt;/</span><span class="n">em</span><span class="o">&gt;/</span> <span class="o">&amp;</span><span class="n">ldquo</span><span class="p">;</span><span class="n">imap</span><span class="o">&amp;</span><span class="n">rdquo</span><span class="p">;,</span><span class="o">/&lt;</span><span class="n">em</span><span class="o">&gt;</span> <span class="n">sto_connect</span> <span class="o">&lt;/</span><span class="n">em</span><span class="o">&gt;/</span> <span class="n">imap_mailstorage_connect</span><span class="p">,</span><span class="o">/&lt;</span><span class="n">em</span><span class="o">&gt;</span> <span class="n">sto_get_folder_session</span> <span class="o">&lt;/</span><span class="n">em</span><span class="o">&gt;/</span><span class="n">imap_mailstorage_get_folder_session</span><span class="p">,</span>
+</span><span class='line'><span class="o">/&lt;</span><span class="n">em</span><span class="o">&gt;</span> <span class="n">sto_uninitialize</span> <span class="o">&lt;/</span><span class="n">em</span><span class="o">&gt;/</span> <span class="n">imap_mailstorage_uninitialize</span><span class="p">};</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<ul>
+<li>POP3</li>
+</ul>
+
+
+<p><img src="/images/2014/04/17/POP3.png" title="POP3" alt="alt text" /></p>
+
+<p>主要的数据结构如下,它的主要成员包括用户认证、对操作请求的响应和结 果的封装两类：</p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='c++'><span class='line'><span class="k">struct</span> <span class="n">mailpop3</span> <span class="p">{</span><span class="kt">char</span> <span class="o">*</span> <span class="n">pop3_response</span><span class="p">;</span>
+</span><span class='line'><span class="kt">char</span> <span class="o">*</span> <span class="n">pop3_timestamp</span><span class="p">;</span><span class="o">/&lt;</span><span class="n">em</span><span class="o">&gt;</span> <span class="n">internals</span> <span class="o">&lt;/</span><span class="n">em</span><span class="o">&gt;/</span><span class="n">mailstream</span> <span class="o">*</span> <span class="n">pop3_stream</span><span class="p">;</span><span class="n">size_t</span> <span class="n">pop3_progr_rate</span><span class="p">;</span>
+</span><span class='line'><span class="n">progress_function</span> <span class="o">*</span> <span class="n">pop3_progr_fun</span><span class="p">;</span><span class="n">MMAPString</span> <span class="o">*</span> <span class="n">pop3_stream_buffer</span><span class="p">;</span>
+</span><span class='line'><span class="n">MMAPString</span> <span class="o">*</span> <span class="n">pop3_response_buffer</span><span class="p">;</span><span class="n">carray</span> <span class="o">*</span> <span class="n">pop3_msg_tab</span><span class="p">;</span>
+</span><span class='line'><span class="kt">int</span> <span class="n">pop3_state</span><span class="p">;</span><span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">pop3_deleted_count</span><span class="p">;</span>
+</span><span class='line'><span class="k">struct</span> <span class="p">{</span><span class="kt">void</span> <span class="o">*</span> <span class="n">sasl_conn</span><span class="p">;</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span> <span class="n">sasl_server_fqdn</span><span class="p">;</span>
+</span><span class='line'><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span> <span class="n">sasl_login</span><span class="p">;</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span> <span class="n">sasl_auth_name</span><span class="p">;</span>
+</span><span class='line'><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span> <span class="n">sasl_password</span><span class="p">;</span>
+</span><span class='line'><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span> <span class="n">sasl_realm</span><span class="p">;</span><span class="kt">void</span> <span class="o">*</span> <span class="n">sasl_secret</span><span class="p">;}</span> <span class="n">pop3_sasl</span><span class="p">;</span><span class="o">&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;</span><span class="p">};</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<ul>
+<li>SMTP</li>
+</ul>
+
+
+<p><img src="/images/2014/04/17/SMTP.png" title="SMTP" alt="alt text" /></p>
+
+<p>除了公共的数据结构 mailstream 外,对 SMTP 的支持基本上只使用了下面的数据结构：</p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class='c++'><span class='line'><span class="k">struct</span> <span class="n">mailsmtp</span> <span class="p">{</span><span class="n">mailstream</span> <span class="o">*</span> <span class="n">stream</span><span class="p">;</span><span class="n">size_t</span> <span class="n">progr_rate</span><span class="p">;</span>
+</span><span class='line'><span class="n">progress_function</span> <span class="o">*</span> <span class="n">progr_fun</span><span class="p">;</span><span class="kt">char</span> <span class="o">*</span> <span class="n">response</span><span class="p">;</span><span class="n">MMAPString</span> <span class="o">*</span> <span class="n">line_buffer</span><span class="p">;</span>
+</span><span class='line'><span class="n">MMAPString</span> <span class="o">*</span> <span class="n">response_buffer</span><span class="p">;</span><span class="kt">int</span> <span class="n">esmtp</span><span class="p">;</span> <span class="o">/&lt;</span><span class="n">em</span><span class="o">&gt;</span> <span class="n">contains</span> <span class="n">flags</span> <span class="n">MAILSMTP_ESMTP_</span><span class="o">&lt;/</span><span class="n">em</span><span class="o">&gt;</span> <span class="o">&lt;</span><span class="n">em</span><span class="o">&gt;/</span>
+</span><span class='line'><span class="kt">int</span> <span class="n">auth</span><span class="p">;</span> <span class="o">/&lt;/</span><span class="n">em</span><span class="o">&gt;</span> <span class="n">contains</span> <span class="n">flags</span> <span class="n">MAILSMTP_AUTH_</span><span class="o">&lt;</span><span class="n">em</span><span class="o">&gt;</span> <span class="o">&lt;/</span><span class="n">em</span><span class="o">&gt;/</span>
+</span><span class='line'><span class="k">struct</span> <span class="p">{</span><span class="kt">void</span> <span class="o">*</span> <span class="n">sasl_conn</span><span class="p">;</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span> <span class="n">sasl_server_fqdn</span><span class="p">;</span>
+</span><span class='line'><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span> <span class="n">sasl_login</span><span class="p">;</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span> <span class="n">sasl_auth_name</span><span class="p">;</span>
+</span><span class='line'><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span> <span class="n">sasl_password</span><span class="p">;</span>
+</span><span class='line'><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span> <span class="n">sasl_realm</span><span class="p">;</span><span class="kt">void</span> <span class="o">*</span> <span class="n">sasl_secret</span><span class="p">;}</span> <span class="n">smtp_sasl</span><span class="p">;</span>
+</span><span class='line'><span class="n">size_t</span> <span class="n">smtp_max_msg_size</span><span class="p">;</span>
+</span><span class='line'><span class="n">mailprogress_function</span> <span class="o">*</span> <span class="n">smtp_progress_fun</span><span class="p">;</span>
+</span><span class='line'><span class="kt">void</span> <span class="o">*</span> <span class="n">smtp_progress_context</span><span class="p">;</span><span class="kt">int</span> <span class="n">response_code</span><span class="p">;</span>
+</span><span class='line'><span class="p">};</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<p>发送邮件的响应,由 mailstream.c 负责读取并读取的结果存储进 MMAPString * line_buffer。</p>
+
+<h4>会话层</h4>
+
+<p>libetpan 主要针对 IMAP、POP3、NNTP、MH、FEED、MBOX 提供了会话及对 其操作的封装(称为 driver)的支持,我们大量使用的只有对 IMAP 的部分。</p>
+
+<p>会话层可以访问本地文件系统或者远程邮件服务器,可以通过它直接发送邮 件操作命令到邮件服务器,邮件存储使用会话与服务器通信;邮件文件夹也使用 会话从服务器获取信息或者向服务器发送信息,按具体实现的不同,整个过程中 可以使用统一会话,也可以使用不同的会话。</p>
+
+<p>会话在 libetpan 中使用结构体 mailsession 来表示：</p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='c++'><span class='line'><span class="k">struct</span> <span class="n">mailsession</span> <span class="p">{</span><span class="kt">void</span> <span class="o">*</span> <span class="n">sess_data</span><span class="p">;</span>
+</span><span class='line'><span class="n">mailsession_driver</span> <span class="o">*</span> <span class="n">sess_driver</span><span class="p">;};</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<p>一个会话有一个 driver,driver 中的内容具体封装了会话相关的操作,driver 提供的信息包括：</p>
+
+<ul>
+<li>name:driver 的名字</li>
+<li>initialize():调用mailsession_new()创建会话时会调用这个函数,它会创建一个特定于 driver 的数据结构并存储在会话中,这个数据结果对于不同的实现(例如 IMAP、NNTP 等)具体内容不同,也作为会话状态使用。</li>
+<li>uninitialize():释放调用 initialize()时创建的数据结构。</li>
+<li>parameters():实现特定于给定邮件访问的函数。</li>
+<li>connect_stream():把数据流连接到会话。</li>
+<li>connect_path():通知主路径到会话。</li>
+<li>starttls():把当前流转换一个 TLS 流。</li>
+<li>login():使用用户名和密码来认证会话。</li>
+<li>logout():退出会话并且关闭流。</li>
+<li>noop():不作任何操作,但不断轮询到服务器的连接的状态,相当于心跳保持。</li>
+<li>check_folder():通过向服务器发送一些指令的方式来对会话做一次检查。</li>
+<li>select_folder():选择一个邮件文件夹(mailbox)。</li>
+<li>expunge_folder():删除所有标记为\Deleted 的邮件。</li>
+<li>status_folder():查询文件夹的状态(包括邮件总数、最近的邮件数、未读的邮件数)。</li>
+<li>append_message():把一个符合 RFC 2822 要求的邮件加入到当前文件夹。</li>
+<li>get_messages_list():返回当前文件夹中所有邮件的列表。</li>
+<li>get_envelopes_list():取得解析了的 envelope 字段。</li>
+<li>remove_message():彻底删除当前文件夹中给定的邮件。</li>
+<li>get_message:以 mailmessage 结构体的形式返回给定序号的邮件。</li>
+</ul>
+
+
+<p>在 IMAP 的情况下就是一个例子,相应的 driver 的创建或者构造其实很简单, 直接使用函数指针进行结构体赋值,这样就把一组与会话相关的函数通过一个结 构体封装了起来,从而可以用相同的代码调用,间接实现了 CPP Template 的效果, 而且在接下来可以直接通过相应的变量去使用：</p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+</pre></td><td class='code'><pre><code class='c++'><span class='line'><span class="k">static</span> <span class="n">mailsession_driver</span> <span class="n">local_imap_session_driver</span> <span class="o">=</span> <span class="p">{</span>
+</span><span class='line'><span class="o">/&lt;</span><span class="n">em</span><span class="o">&gt;</span> <span class="n">sess_name</span> <span class="o">&lt;/</span><span class="n">em</span><span class="o">&gt;/</span> <span class="o">&amp;</span><span class="n">ldquo</span><span class="p">;</span><span class="n">imap</span><span class="o">&amp;</span><span class="n">rdquo</span><span class="p">;,</span><span class="o">/&lt;</span><span class="n">em</span><span class="o">&gt;</span> <span class="n">sess_initialize</span> <span class="o">&lt;/</span><span class="n">em</span><span class="o">&gt;/</span> <span class="n">imapdriver_initialize</span><span class="p">,</span><span class="o">/&lt;</span><span class="n">em</span><span class="o">&gt;</span> <span class="n">sess_uninitialize</span> <span class="o">&lt;/</span><span class="n">em</span><span class="o">&gt;/</span> <span class="n">imapdriver_uninitialize</span><span class="p">,</span><span class="o">/&lt;</span><span class="n">em</span><span class="o">&gt;</span> <span class="n">sess_parameters</span> <span class="o">&lt;/</span><span class="n">em</span><span class="o">&gt;/</span> <span class="n">imapdriver_parameters</span><span class="p">,</span><span class="o">/&lt;</span><span class="n">em</span><span class="o">&gt;</span> <span class="n">sess_connect_stream</span> <span class="o">&lt;/</span><span class="n">em</span><span class="o">&gt;/</span> <span class="n">imapdriver_connect_stream</span><span class="p">,</span>
+</span><span class='line'><span class="o">/&lt;</span><span class="n">em</span><span class="o">&gt;</span> <span class="n">sess_connect_path</span> <span class="o">&lt;/</span><span class="n">em</span><span class="o">&gt;/</span> <span class="nb">NULL</span><span class="p">,</span><span class="o">/&lt;</span><span class="n">em</span><span class="o">&gt;</span> <span class="n">sess_starttls</span> <span class="o">&lt;/</span><span class="n">em</span><span class="o">&gt;/</span> <span class="n">imapdriver_starttls</span><span class="p">,</span><span class="o">/&lt;</span><span class="n">em</span><span class="o">&gt;</span> <span class="n">sess_login</span> <span class="o">&lt;/</span><span class="n">em</span><span class="o">&gt;/</span> <span class="n">imapdriver_login</span><span class="p">,</span><span class="o">/&lt;</span><span class="n">em</span><span class="o">&gt;</span> <span class="n">sess_logout</span> <span class="o">&lt;/</span><span class="n">em</span><span class="o">&gt;/</span> <span class="n">imapdriver_logout</span><span class="p">,</span>
+</span><span class='line'><span class="o">/&lt;</span><span class="n">em</span><span class="o">&gt;</span> <span class="n">sess_noop</span> <span class="o">&lt;/</span><span class="n">em</span><span class="o">&gt;/</span> <span class="n">imapdriver_noop</span><span class="p">,</span><span class="o">/&lt;</span><span class="n">em</span><span class="o">&gt;</span> <span class="n">sess_build_folder_name</span> <span class="o">&lt;/</span><span class="n">em</span><span class="o">&gt;/</span><span class="n">imapdriver_build_folder_name</span><span class="p">,</span>
+</span><span class='line'><span class="o">/&lt;</span><span class="n">em</span><span class="o">&gt;</span> <span class="n">sess_create_folder</span> <span class="o">&lt;/</span><span class="n">em</span><span class="o">&gt;/</span> <span class="n">imapdriver_create_folder</span><span class="p">,</span><span class="o">/&lt;</span><span class="n">em</span><span class="o">&gt;</span> <span class="n">sess_delete_folder</span> <span class="o">&lt;/</span><span class="n">em</span><span class="o">&gt;/</span> <span class="n">imapdriver_delete_folder</span><span class="p">,</span><span class="o">/&lt;</span><span class="n">em</span><span class="o">&gt;</span> <span class="n">sess_rename_folder</span> <span class="o">&lt;/</span><span class="n">em</span><span class="o">&gt;/</span> <span class="n">imapdriver_rename_folder</span><span class="p">,</span><span class="o">/&lt;</span><span class="n">em</span><span class="o">&gt;</span> <span class="n">sess_check_folder</span> <span class="o">&lt;/</span><span class="n">em</span><span class="o">&gt;/</span> <span class="n">imapdriver_check_folder</span><span class="p">,</span><span class="o">/&lt;</span><span class="n">em</span><span class="o">&gt;</span> <span class="n">sess_examine_folder</span> <span class="o">&lt;/</span><span class="n">em</span><span class="o">&gt;/</span> <span class="n">imapdriver_examine_folder</span><span class="p">,</span>
+</span><span class='line'><span class="o">/&lt;</span><span class="n">em</span><span class="o">&gt;</span> <span class="n">sess_select_folder</span> <span class="o">&lt;/</span><span class="n">em</span><span class="o">&gt;/</span> <span class="n">imapdriver_select_folder</span><span class="p">,</span><span class="o">/&lt;</span><span class="n">em</span><span class="o">&gt;</span> <span class="n">sess_expunge_folder</span> <span class="o">&lt;/</span><span class="n">em</span><span class="o">&gt;/</span> <span class="n">imapdriver_expunge_folder</span><span class="p">,</span>
+</span><span class='line'><span class="o">/&lt;</span><span class="n">em</span><span class="o">&gt;</span> <span class="n">sess_status_folder</span> <span class="o">&lt;/</span><span class="n">em</span><span class="o">&gt;/</span> <span class="n">imapdriver_status_folder</span><span class="p">,</span><span class="o">/&lt;</span><span class="n">em</span><span class="o">&gt;</span> <span class="n">sess_messages_number</span> <span class="o">&lt;/</span><span class="n">em</span><span class="o">&gt;/</span> <span class="n">imapdriver_messages_number</span><span class="p">,</span>
+</span><span class='line'><span class="o">/&lt;</span><span class="n">em</span><span class="o">&gt;</span> <span class="n">sess_recent_number</span> <span class="o">&lt;/</span><span class="n">em</span><span class="o">&gt;/</span> <span class="n">imapdriver_recent_number</span><span class="p">,</span><span class="o">/&lt;</span><span class="n">em</span><span class="o">&gt;</span> <span class="n">sess_unseen_number</span> <span class="o">&lt;/</span><span class="n">em</span><span class="o">&gt;/</span> <span class="n">imapdriver_unseen_number</span><span class="p">,</span><span class="o">/&lt;</span><span class="n">em</span><span class="o">&gt;</span> <span class="n">sess_list_folders</span> <span class="o">&lt;/</span><span class="n">em</span><span class="o">&gt;/</span> <span class="n">imapdriver_list_folders</span><span class="p">,</span><span class="o">/&lt;</span><span class="n">em</span><span class="o">&gt;</span> <span class="n">sess_lsub_folders</span> <span class="o">&lt;/</span><span class="n">em</span><span class="o">&gt;/</span> <span class="n">imapdriver_lsub_folders</span><span class="p">,</span><span class="o">/&lt;</span><span class="n">em</span><span class="o">&gt;</span> <span class="n">sess_subscribe_folder</span> <span class="o">&lt;/</span><span class="n">em</span><span class="o">&gt;/</span> <span class="n">imapdriver_subscribe_folder</span><span class="p">,</span><span class="o">/&lt;</span><span class="n">em</span><span class="o">&gt;</span> <span class="n">sess_unsubscribe_folder</span> <span class="o">&lt;/</span><span class="n">em</span><span class="o">&gt;/</span><span class="n">imapdriver_unsubscribe_folder</span><span class="p">,</span>
+</span><span class='line'><span class="o">/&lt;</span><span class="n">em</span><span class="o">&gt;</span> <span class="n">sess_append_message</span> <span class="o">&lt;/</span><span class="n">em</span><span class="o">&gt;/</span> <span class="n">imapdriver_append_message</span><span class="p">,</span><span class="o">/&lt;</span><span class="n">em</span><span class="o">&gt;</span> <span class="n">sess_append_message_flags</span> <span class="o">&lt;/</span><span class="n">em</span><span class="o">&gt;/</span> <span class="n">imapdriver_append_message_flags</span><span class="p">,</span>
+</span><span class='line'><span class="o">/&lt;</span><span class="n">em</span><span class="o">&gt;</span> <span class="n">sess_copy_message</span> <span class="o">&lt;/</span><span class="n">em</span><span class="o">&gt;/</span> <span class="n">imapdriver_copy_message</span><span class="p">,</span><span class="o">/&lt;</span><span class="n">em</span><span class="o">&gt;</span> <span class="n">sess_move_message</span> <span class="o">&lt;/</span><span class="n">em</span><span class="o">&gt;/</span> <span class="nb">NULL</span><span class="p">,</span><span class="o">/&lt;</span><span class="n">em</span><span class="o">&gt;</span> <span class="n">sess_get_message</span> <span class="o">&lt;/</span><span class="n">em</span><span class="o">&gt;/</span> <span class="n">imapdriver_get_message</span><span class="p">,</span><span class="o">/&lt;</span><span class="n">em</span><span class="o">&gt;</span> <span class="n">sess_get_message_by_uid</span> <span class="o">&lt;/</span><span class="n">em</span><span class="o">&gt;/</span><span class="n">imapdriver_get_message_by_uid</span><span class="p">,</span><span class="o">/&lt;</span><span class="n">em</span><span class="o">&gt;</span> <span class="n">sess_get_messages_list</span> <span class="o">&lt;/</span><span class="n">em</span><span class="o">&gt;/</span><span class="n">imapdriver_get_messages_list</span><span class="p">,</span>
+</span><span class='line'><span class="o">/&lt;</span><span class="n">em</span><span class="o">&gt;</span> <span class="n">sess_get_envelopes_list</span> <span class="o">&lt;/</span><span class="n">em</span><span class="o">&gt;/</span><span class="n">imapdriver_get_envelopes_list</span><span class="p">,</span>
+</span><span class='line'><span class="o">/&lt;</span><span class="n">em</span><span class="o">&gt;</span> <span class="n">sess_remove_message</span> <span class="o">&lt;/</span><span class="n">em</span><span class="o">&gt;/</span> <span class="n">imapdriver_remove_message</span><span class="p">,</span><span class="o">/&lt;</span><span class="n">em</span><span class="o">&gt;</span> <span class="n">sess_login_sasl</span> <span class="o">&lt;/</span><span class="n">em</span><span class="o">&gt;/</span> <span class="n">imapdriver_login_sasl</span>
+</span><span class='line'><span class="p">};</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<p>libetpan 对具体的邮件使用下面的结构体封装,除了包含邮件本身的消息外, 对于具体的 mailmessage 实例可以获取相应的会话,还可以获取对邮件的处理的 driver：</p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='c++'><span class='line'><span class="k">struct</span> <span class="n">mailmessage</span> <span class="p">{</span><span class="n">mailsession</span> <span class="o">*</span> <span class="n">msg_session</span><span class="p">;</span>
+</span><span class='line'><span class="n">mailmessage_driver</span> <span class="o">*</span> <span class="n">msg_driver</span><span class="p">;</span>
+</span><span class='line'><span class="n">uint32_t</span> <span class="n">msg_index</span><span class="p">;</span><span class="kt">char</span> <span class="o">*</span> <span class="n">msg_uid</span><span class="p">;</span><span class="n">size_t</span> <span class="n">msg_size</span><span class="p">;</span><span class="c1">// export internal_date; add by liamstruct mailimap_date_time * internal_date;</span>
+</span><span class='line'><span class="k">struct</span> <span class="n">mailimf_fields</span> <span class="o">*</span> <span class="n">msg_fields</span><span class="p">;</span><span class="k">struct</span> <span class="n">mail_flags</span> <span class="o">*</span> <span class="n">msg_flags</span><span class="p">;</span>
+</span><span class='line'><span class="kt">int</span> <span class="n">msg_resolved</span><span class="p">;</span>
+</span><span class='line'><span class="k">struct</span> <span class="n">mailimf_single_fields</span> <span class="n">msg_single_fields</span><span class="p">;</span>
+</span><span class='line'><span class="k">struct</span> <span class="n">mailmime</span> <span class="o">*</span> <span class="n">msg_mime</span><span class="p">;</span>
+</span><span class='line'><span class="o">/&lt;</span><span class="n">em</span><span class="o">&gt;</span> <span class="n">internal</span> <span class="n">data</span> <span class="o">&lt;/</span><span class="n">em</span><span class="o">&gt;/</span><span class="kt">int</span> <span class="n">msg_cached</span><span class="p">;</span>
+</span><span class='line'><span class="kt">void</span> <span class="o">*</span> <span class="n">msg_data</span><span class="p">;</span>
+</span><span class='line'><span class="o">/&lt;</span><span class="n">em</span><span class="o">&gt;</span><span class="n">msg_folder</span> <span class="n">field</span> <span class="o">:</span><span class="n">used</span> <span class="n">to</span> <span class="n">reference</span> <span class="n">the</span> <span class="n">mailfolder</span><span class="p">,</span> <span class="k">this</span> <span class="n">is</span> <span class="n">a</span> <span class="n">workaround</span> <span class="n">due</span> <span class="n">to</span> <span class="n">the</span> <span class="n">problem</span> <span class="n">with</span> <span class="n">initial</span> <span class="n">conception</span><span class="p">,</span> <span class="n">where</span> <span class="n">folder</span> <span class="n">notion</span> <span class="n">did</span> <span class="n">not</span> <span class="n">exist</span><span class="p">.</span><span class="o">&lt;/</span><span class="n">em</span><span class="o">&gt;/</span>
+</span><span class='line'><span class="kt">void</span> <span class="o">*</span> <span class="n">msg_folder</span><span class="p">;</span><span class="o">/&lt;</span><span class="n">em</span><span class="o">&gt;</span> <span class="n">user</span> <span class="n">data</span> <span class="o">&lt;/</span><span class="n">em</span><span class="o">&gt;/</span><span class="kt">void</span> <span class="o">*</span> <span class="n">msg_user_data</span><span class="p">;};</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<p>通过会话,可以取得邮件,libetpan 使用结构体 mailmessage 表示一封邮件。 与对会话的处理相似,在处理邮件时,libetpan 使用了类似的方式:通过 mailmessage_driver 提供了一组操作邮件内容的函数,具体包括(一个邮件可以 包含数量不限的 MIME 部分,MIME 之间可嵌套,每个 MIME 包含消息头和消息 体两部分)：</p>
+
+<ul>
+<li>name:driver 的名字</li>
+<li>initialize():创建以-分割的邮件 uid 并保存在 mailmessage*中,在调用mailmessage_init()时会调用这个方法。</li>
+<li>uninitialize():释放 initialize()方法创建的数据,mailmessage_free()会调用这个方法。</li>
+<li>flush():从内存中释放所有临时的邮件结构体,例如 MIME 消息的结构体。</li>
+<li>fetch_result_free():释放所有以 fetch 开头的方法返回的字符串。</li>
+<li>fetch():返回邮件的内容,包括头、文本。</li>
+<li>fetch_header():返回 header 部分的内容。</li>
+<li>fetch_body():返回邮件的不包含 header 部分内容的正文。</li>
+<li>fetch_size():取得邮件的大小。</li>
+<li>get_bodystructure():取得邮件的 MIME 结构信息,就是通常说的bodystructure 的内容。</li>
+<li>fetch_section():取得给定的 MIME 部分的内容。</li>
+<li>fetch_section_header():返回给定 MIME 部分的消息的消息头。</li>
+<li>fetch_section_mime():返回给定 MIME 部分的 MIME 头。</li>
+<li>fetch_section_body():返回给定 MIME 部分文本,对一个 MIME 消息则返回不包含头的消息内容。</li>
+<li>fetch_envelope():返回一个 mailimf_fields 结构体,其中包含一组有相应driver 选取的 mailimf_field;mailimf_field 是一个结构体,其中包含有一个公用体,通过 int 类型的 fld_type 指明了公用体的实际内容。</li>
+<li>get_flags():返回一个与该邮件有关的标志。在直接使用 message->flags获取标志前须确保调用了这个方法。</li>
+</ul>
+
+
+<p>mailmessage_driver 也通过结构体封装了这些函数的指针:</p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='c++'><span class='line'><span class="k">static</span> <span class="n">mailmessage_driver</span> <span class="n">local_imap_message_driver</span> <span class="o">=</span> <span class="p">{</span>
+</span><span class='line'><span class="o">/&lt;</span><span class="n">em</span><span class="o">&gt;</span> <span class="n">msg_name</span> <span class="o">&lt;/</span><span class="n">em</span><span class="o">&gt;/</span> <span class="o">&amp;</span><span class="n">ldquo</span><span class="p">;</span><span class="n">imap</span><span class="o">&amp;</span><span class="n">rdquo</span><span class="p">;,</span><span class="o">/&lt;</span><span class="n">em</span><span class="o">&gt;</span> <span class="n">msg_initialize</span> <span class="o">&lt;/</span><span class="n">em</span><span class="o">&gt;/</span> <span class="n">imap_initialize</span><span class="p">,</span>
+</span><span class='line'><span class="o">/&lt;</span><span class="n">em</span><span class="o">&gt;</span> <span class="n">msg_uninitialize</span> <span class="o">&lt;/</span><span class="n">em</span><span class="o">&gt;/</span> <span class="nb">NULL</span><span class="p">,</span><span class="o">/&lt;</span><span class="n">em</span><span class="o">&gt;</span> <span class="n">msg_flush</span> <span class="o">&lt;/</span><span class="n">em</span><span class="o">&gt;/</span> <span class="n">imap_flush</span><span class="p">,</span>
+</span><span class='line'><span class="o">/&lt;</span><span class="n">em</span><span class="o">&gt;</span> <span class="n">msg_check</span> <span class="o">&lt;/</span><span class="n">em</span><span class="o">&gt;/</span> <span class="n">imap_check</span><span class="p">,</span><span class="o">/&lt;</span><span class="n">em</span><span class="o">&gt;</span> <span class="n">msg_fetch_result_free</span> <span class="o">&lt;/</span><span class="n">em</span><span class="o">&gt;/</span> <span class="n">imap_fetch_result_free</span><span class="p">,</span><span class="o">/&lt;</span><span class="n">em</span><span class="o">&gt;</span> <span class="n">msg_fetch</span> <span class="o">&lt;/</span><span class="n">em</span><span class="o">&gt;/</span> <span class="n">imap_fetch</span><span class="p">,</span><span class="o">/&lt;</span><span class="n">em</span><span class="o">&gt;</span> <span class="n">msg_fetch_header</span> <span class="o">&lt;/</span><span class="n">em</span><span class="o">&gt;/</span> <span class="n">imap_fetch_header</span><span class="p">,</span><span class="o">/&lt;</span><span class="n">em</span><span class="o">&gt;</span> <span class="n">msg_fetch_body</span> <span class="o">&lt;/</span><span class="n">em</span><span class="o">&gt;/</span> <span class="n">imap_fetch_body</span><span class="p">,</span><span class="o">/&lt;</span><span class="n">em</span><span class="o">&gt;</span> <span class="n">msg_fetch_size</span> <span class="o">&lt;/</span><span class="n">em</span><span class="o">&gt;/</span> <span class="n">imap_fetch_size</span><span class="p">,</span><span class="o">/&lt;</span><span class="n">em</span><span class="o">&gt;</span> <span class="n">msg_get_bodystructure</span> <span class="o">&lt;/</span><span class="n">em</span><span class="o">&gt;/</span> <span class="n">imap_get_bodystructure</span><span class="p">,</span><span class="o">/&lt;</span><span class="n">em</span><span class="o">&gt;</span> <span class="n">msg_fetch_section</span> <span class="o">&lt;/</span><span class="n">em</span><span class="o">&gt;/</span> <span class="n">imap_fetch_section</span><span class="p">,</span><span class="o">/&lt;</span><span class="n">em</span><span class="o">&gt;</span> <span class="n">msg_fetch_section_header</span> <span class="o">&lt;/</span><span class="n">em</span><span class="o">&gt;/</span><span class="n">imap_fetch_section_header</span><span class="p">,</span>
+</span><span class='line'><span class="o">/&lt;</span><span class="n">em</span><span class="o">&gt;</span> <span class="n">msg_fetch_section_mime</span> <span class="o">&lt;/</span><span class="n">em</span><span class="o">&gt;/</span> <span class="n">imap_fetch_section_mime</span><span class="p">,</span>
+</span><span class='line'><span class="o">/&lt;</span><span class="n">em</span><span class="o">&gt;</span> <span class="n">msg_fetch_section_body</span> <span class="o">&lt;/</span><span class="n">em</span><span class="o">&gt;/</span> <span class="n">imap_fetch_section_body</span><span class="p">,</span><span class="o">/&lt;</span><span class="n">em</span><span class="o">&gt;</span> <span class="n">msg_fetch_envelope</span> <span class="o">&lt;/</span><span class="n">em</span><span class="o">&gt;/</span> <span class="n">imap_fetch_envelope</span><span class="p">,</span><span class="o">/&lt;</span><span class="n">em</span><span class="o">&gt;</span> <span class="n">msg_get_flags</span> <span class="o">&lt;/</span><span class="n">em</span><span class="o">&gt;/</span> <span class="n">imap_get_flags</span>
+</span><span class='line'><span class="p">};</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<h4>邮件存储/文件夹层</h4>
+
+<p>一个邮件存储(结构体 mailstorage)实例代表一个邮件服务器或者一个主路径,它实际上可以是一个 IMAP 服务器,一个 MH 或 mbox 文件的根路径。</p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='c++'><span class='line'><span class="k">struct</span> <span class="n">mailstorage</span> <span class="p">{</span><span class="kt">char</span> <span class="o">*</span> <span class="n">sto_id</span><span class="p">;</span><span class="kt">void</span> <span class="o">*</span> <span class="n">sto_data</span><span class="p">;</span><span class="n">mailsession</span> <span class="o">*</span> <span class="n">sto_session</span><span class="p">;</span><span class="n">mailstorage_driver</span> <span class="o">*</span> <span class="n">sto_driver</span><span class="p">;</span><span class="n">clist</span> <span class="o">*</span> <span class="n">sto_shared_folders</span><span class="p">;</span> <span class="o">/&lt;</span><span class="n">em</span><span class="o">&gt;</span> <span class="n">list</span> <span class="n">of</span> <span class="p">(</span><span class="k">struct</span> <span class="n">mailfolder</span> <span class="o">&lt;/</span><span class="n">em</span><span class="o">&gt;</span><span class="p">)</span> <span class="err">*/</span><span class="kt">void</span> <span class="o">*</span> <span class="n">sto_user_data</span><span class="p">;</span> <span class="p">};</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<p>获得邮件存储实例后,可以根据它在服务器上创建一个文件夹(通过结构体 mailfolder 表示),文件夹通常还被称作 mailbox,也就是收件箱、发件箱、草稿 箱等,这个文件夹可以是主路径的子文件夹,通过它可以执行对文件夹有关的操 作。</p>
+
+<p>对 IMAP 而言,文件夹是 IMAP 的 mailbox,对 MH 而言是 MH 存储的其中一 个文件夹,对 MBOX 而言,只有一个文件夹,也就是 MBOX 文件。</p>
+
+<p>从业务逻辑上看,mailbox 像是一个房子,但是房子里面可以有数量不定的 房间,在 libetpan 内部,房间就是 mailfolder,但在具体的技术实现上,mailbox 和 mail folder 都统一为 mail folder,用一个结构体表示,该结构体可嵌套,从而 支持 mailbox 和 mail folder 之间的逻辑关系。</p>
+
+<p>文件夹的具体定义如下:</p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='c++'><span class='line'><span class="k">struct</span> <span class="n">mailfolder</span> <span class="p">{</span><span class="kt">char</span> <span class="o">*</span> <span class="n">fld_pathname</span><span class="p">;</span>
+</span><span class='line'><span class="kt">char</span> <span class="o">*</span> <span class="n">fld_virtual_name</span><span class="p">;</span><span class="k">struct</span> <span class="n">mailstorage</span> <span class="o">*</span> <span class="n">fld_storage</span><span class="p">;</span><span class="n">mailsession</span> <span class="o">*</span> <span class="n">fld_session</span><span class="p">;</span>
+</span><span class='line'><span class="kt">int</span> <span class="n">fld_shared_session</span><span class="p">;</span>
+</span><span class='line'><span class="n">clistiter</span> <span class="o">*</span> <span class="n">fld_pos</span><span class="p">;</span><span class="k">struct</span> <span class="n">mailfolder</span> <span class="o">*</span> <span class="n">fld_parent</span><span class="p">;</span><span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">fld_sibling_index</span><span class="p">;</span><span class="n">carray</span> <span class="o">*</span> <span class="n">fld_children</span><span class="p">;</span> <span class="o">/&lt;</span><span class="n">em</span><span class="o">&gt;</span> <span class="n">array</span> <span class="n">of</span> <span class="p">(</span><span class="k">struct</span> <span class="n">mailfolder</span> <span class="o">&lt;/</span><span class="n">em</span><span class="o">&gt;</span><span class="p">)</span> <span class="err">*/</span><span class="kt">void</span> <span class="o">*</span> <span class="n">fld_user_data</span><span class="p">;</span> <span class="p">};</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<p>libetpan 对访问邮件的需求提供了三个 driver,上面说明了用于会话和邮件 的 2 个 driver,还有一个用于访问存储/文件夹,访问文件夹是仅需要使用会话的 driver。结构体 mailstorage_driver 定义了 libetpan 在存储/文件夹的访问上支持的 操作,它的定义如下:</p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='c++'><span class='line'><span class="k">struct</span> <span class="n">mailstorage_driver</span> <span class="p">{</span><span class="kt">char</span> <span class="o">*</span> <span class="n">sto_name</span><span class="p">;</span><span class="kt">int</span> <span class="p">(</span><span class="o">&lt;</span><span class="n">em</span><span class="o">&gt;</span> <span class="n">sto_connect</span><span class="p">)(</span><span class="k">struct</span> <span class="n">mailstorage</span> <span class="o">*</span> <span class="n">storage</span><span class="p">);</span><span class="kt">int</span> <span class="p">(</span><span class="o">&lt;/</span><span class="n">em</span><span class="o">&gt;</span> <span class="n">sto_get_folder_session</span><span class="p">)(</span><span class="k">struct</span> <span class="n">mailstorage</span> <span class="o">*</span> <span class="n">storage</span><span class="p">,</span><span class="kt">char</span> <span class="o">*</span> <span class="n">pathname</span><span class="p">,</span> <span class="n">mailsession</span> <span class="o">&lt;</span><span class="n">em</span><span class="o">&gt;*</span> <span class="n">result</span><span class="p">);</span><span class="kt">void</span> <span class="p">(</span><span class="o">&lt;/</span><span class="n">em</span><span class="o">&gt;</span> <span class="n">sto_uninitialize</span><span class="p">)(</span><span class="k">struct</span> <span class="n">mailstorage</span> <span class="o">*</span> <span class="n">storage</span><span class="p">);};</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<p>其中:</p>
+
+<ul>
+<li>name 是 driver 的名字</li>
+<li>connect()方法把存储连接到远程服务器或者本地文件系统的路径</li>
+<li>get_folder_session()方法有两种行为:1)创建一个新的会话并且使之独立于存储使用的会话,然后选择给定的邮箱;2)选择当前存储的会话及其特定的邮箱。</li>
+<li>uninitialized()方法释放构造 mailstorage 时创建的数据。</li>
+</ul>
+
+
+<p>在 IMAP、POP3 等操作环境下,mailstorage_driver 会分别被实例化为 imap_mailstorage_driver 和 pop3_mailstorage_driver。</p>
+
+<h4>数据库、缓存文件</h4>
+
+<p>libetpan 支持把邮件数据存储到 Berkeley DB 里,如果要使用这个数据库,需 要在编译时进行相应的配置,而且对数据库的支持目前仅限于*nix、Mac 平台。</p>
+
+<p>直接在 libetpan 把邮件数据保存到数据库中,这样做的运行效率会比 sqlite 要高不少,但势必要把一些业务逻辑上的东西带入到 libetpan 中,而且要比通过 Objective C 操作 sqlite 的开发及调优的难度会有一定的增加。</p>
+
+<p>libetpan 的缓存实际就是文件,这些文件可以根据需要使用不同的文件夹包 含起来,在*nix 平台上,通过 mmap 系统调用并以流操作的形式+一定的直接的 内存操作来处理缓存数据,数据相当于缓存到了内存中,倒是真正有缓存的含义。</p>
+
+<p>该缓存支持直接把 mailmessage 等结构体的数据存储到缓冲中。</p>
+
+<p>在 windows 平台上,这个库并没有把 mmap 调用替换成 windows 操作系统 对应的机制, Windows 平台下对该缓存应该还没有真正完成。</p>
+
+<h4>IMAP 实现对邮件搜索功能的支持</h4>
+
+<p>Libetpan 对 IMAP 的实现支持按下面定义的数据结构从服务器端对邮件各个 部分的内容进行搜索,但肯定需要服务器端的支持；</p>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+</pre></td><td class='code'><pre><code class='c++'><span class='line'><span class="k">struct</span> <span class="n">mailimap_search_key</span> <span class="p">{</span>
+</span><span class='line'><span class="kt">int</span> <span class="n">sk_type</span><span class="p">;</span><span class="k">union</span> <span class="p">{</span><span class="kt">char</span> <span class="o">*</span> <span class="n">sk_bcc</span><span class="p">;</span><span class="k">struct</span> <span class="n">mailimap_date</span> <span class="o">*</span> <span class="n">sk_before</span><span class="p">;</span>
+</span><span class='line'><span class="kt">char</span> <span class="o">*</span> <span class="n">sk_body</span><span class="p">;</span><span class="kt">char</span> <span class="o">*</span> <span class="n">sk_cc</span><span class="p">;</span><span class="kt">char</span> <span class="o">*</span> <span class="n">sk_from</span><span class="p">;</span><span class="kt">char</span> <span class="o">*</span> <span class="n">sk_keyword</span><span class="p">;</span><span class="k">struct</span> <span class="n">mailimap_date</span> <span class="o">*</span> <span class="n">sk_on</span><span class="p">;</span>
+</span><span class='line'><span class="k">struct</span> <span class="n">mailimap_date</span> <span class="o">*</span> <span class="n">sk_since</span><span class="p">;</span>
+</span><span class='line'><span class="kt">char</span> <span class="o">*</span> <span class="n">sk_subject</span><span class="p">;</span><span class="kt">char</span> <span class="o">*</span> <span class="n">sk_text</span><span class="p">;</span><span class="kt">char</span> <span class="o">*</span> <span class="n">sk_to</span><span class="p">;</span><span class="kt">char</span> <span class="o">*</span> <span class="n">sk_unkeyword</span><span class="p">;</span>
+</span><span class='line'><span class="k">struct</span> <span class="p">{</span><span class="kt">char</span> <span class="o">*</span> <span class="n">sk_header_name</span><span class="p">;</span><span class="kt">char</span> <span class="o">*</span> <span class="n">sk_header_value</span><span class="p">;}</span> <span class="n">sk_header</span><span class="p">;</span>
+</span><span class='line'><span class="n">uint32_t</span> <span class="n">sk_larger</span><span class="p">;</span><span class="k">struct</span> <span class="n">mailimap_search_key</span> <span class="o">*</span> <span class="n">sk_not</span><span class="p">;</span>
+</span><span class='line'><span class="k">struct</span> <span class="p">{</span><span class="o">&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">pre</span><span class="o">&gt;&lt;</span><span class="n">code</span><span class="o">&gt;</span><span class="k">struct</span> <span class="n">mailimap_search_key</span> <span class="o">*</span> <span class="n">sk_or1</span><span class="p">;</span>    <span class="k">struct</span> <span class="n">mailimap_search_key</span> <span class="o">*</span> <span class="n">sk_or2</span><span class="p">;</span>
+</span><span class='line'><span class="o">&lt;/</span><span class="n">code</span><span class="o">&gt;&lt;/</span><span class="n">pre</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;</span><span class="p">}</span> <span class="n">sk_or</span><span class="p">;</span>
+</span><span class='line'><span class="k">struct</span> <span class="n">mailimap_date</span> <span class="o">*</span> <span class="n">sk_sentbefore</span><span class="p">;</span>
+</span><span class='line'><span class="k">struct</span> <span class="n">mailimap_date</span> <span class="o">*</span> <span class="n">sk_senton</span><span class="p">;</span>
+</span><span class='line'><span class="k">struct</span> <span class="n">mailimap_date</span> <span class="o">*</span> <span class="n">sk_sentsince</span><span class="p">;</span>
+</span><span class='line'><span class="n">uint32_t</span> <span class="n">sk_smaller</span><span class="p">;</span><span class="k">struct</span> <span class="n">mailimap_set</span> <span class="o">*</span> <span class="n">sk_uid</span><span class="p">;</span><span class="k">struct</span> <span class="n">mailimap_set</span> <span class="o">*</span> <span class="n">sk_set</span><span class="p">;</span><span class="n">clist</span> <span class="o">*</span> <span class="n">sk_multiple</span><span class="p">;</span> <span class="o">/&lt;</span><span class="n">em</span><span class="o">&gt;</span> <span class="n">list</span> <span class="n">of</span> <span class="p">(</span><span class="k">struct</span> <span class="n">mailimap_search_key</span> <span class="o">&lt;/</span><span class="n">em</span><span class="o">&gt;</span><span class="p">)</span> <span class="err">*/</span><span class="p">}</span> <span class="n">sk_data</span><span class="p">;</span>
+</span><span class='line'><span class="p">};</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<h4>其它</h4>
+
+<p>libetpan 的一个有意思的地方是以 C 语言实现了一批实用的数据结构,实现了类似相应的 C++模板的效果,使用方便而且编译速度要快很多：</p>
+
+<p><img src="/images/2014/04/17/Other.png" title="Other" alt="alt text" /></p>
+
+<p>特别是前几个数据结构,在 libetpan、MailCore 里面都大量使用,不管是在 哪一个层次。</p>
+
+<p>libetpan 对上层提供的接口及其作用的说明:</p>
+
+<p><img src="/images/2014/04/17/Other2.png" title="Other" alt="alt text" /></p>
+
+<h4>总结</h4>
+
+<p>Libetpan 虽然采用 C 开发,但由于它尝试用存储->会话->邮件这样一个统一 的框架并以函数指针的方式来封装获取、解析邮件各部分内容的全过程,所以无 法直接从代码之间的调用关系来了解整个过程,必须从各个层次的封装接口入手 才能连接整个过程。</p>
+
+<p>libetpan 对邮件协议的封装中,最复杂的是 IMAP 部分。这里对 IMAP 的封装 接口以下图进行说明:</p>
+
+<p><img src="/images/2014/04/17/LibEtPan_IMAP.png" title="LibEtPan_IMAP" alt="alt text" /></p>
+
+<p>感谢原文提供者。</p>
+]]></content>
+  </entry>
+  
+</feed>
