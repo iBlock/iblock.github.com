@@ -2,56 +2,64 @@
 <urlset xmlns='http://www.sitemaps.org/schemas/sitemap/0.9'>
     <url>
         <loc>http://iBlock.github.io/blog/2014/03/10/octopressbo-ke-kai-bo/</loc>
-        <lastmod>2014-04-04T15:14:21+08:00</lastmod>
+        <lastmod>2014-10-08T20:49:00+08:00</lastmod>
     </url>
     <url>
         <loc>
             http://iBlock.github.io/blog/2014/03/12/da-jian-octopressbo-ke-hou-cocoapodwu-fa-shi-yong-wen-ti-ji-lu/
         </loc>
-        <lastmod>2014-03-12T23:25:48+08:00</lastmod>
+        <lastmod>2014-10-08T20:49:00+08:00</lastmod>
     </url>
     <url>
         <loc>http://iBlock.github.io/blog/2014/03/17/kvocontrollerlei-ku-shi-yong-xue-xi/</loc>
-        <lastmod>2014-04-03T23:17:58+08:00</lastmod>
+        <lastmod>2014-10-08T20:49:00+08:00</lastmod>
+    </url>
+    <url>
+        <loc>http://iBlock.github.io/blog/2014/04/03/nsstringlei-fang-fa-shi-yong-ji-lu/</loc>
+        <lastmod>2014-10-08T20:49:00+08:00</lastmod>
     </url>
     <url>
         <loc>
             http://iBlock.github.io/blog/2014/04/03/ios-provisioning-profilesmiao-shu-wen-jian-dao-qi-jie-jue-fang-fa/
         </loc>
-        <lastmod>2014-04-04T16:40:10+08:00</lastmod>
+        <lastmod>2014-10-08T20:49:00+08:00</lastmod>
     </url>
     <url>
         <loc>
             http://iBlock.github.io/blog/2014/04/04/ios7-dot-1-qi-ye-ying-yong-wu-fa-an-zhuang-jie-jue-fang-an/
         </loc>
-        <lastmod>2014-04-04T16:31:06+08:00</lastmod>
+        <lastmod>2014-10-08T20:49:00+08:00</lastmod>
     </url>
     <url>
         <loc>
             http://iBlock.github.io/blog/2014/04/17/mailcore2you-jian-lei-ku-di-ceng-shi-xian-fen-xi/
         </loc>
-        <lastmod>2014-04-17T19:12:46+08:00</lastmod>
+        <lastmod>2016-01-19T21:02:11+08:00</lastmod>
     </url>
     <url>
         <loc>
             http://iBlock.github.io/blog/2014/10/08/octopressshi-yong-guo-cheng-zhong-chu-xian-de-wen-ti/
         </loc>
-        <lastmod>2014-10-08T23:38:58+08:00</lastmod>
+        <lastmod>2016-01-19T21:02:11+08:00</lastmod>
+    </url>
+    <url>
+        <loc>http://iBlock.github.io/blog/2016/01/18/react-native-huan-jing-da-jian/</loc>
+        <lastmod>2016-01-20T10:09:24+08:00</lastmod>
     </url>
     <url>
         <loc>http://iBlock.github.io/404.html</loc>
-        <lastmod>2014-03-11T13:30:54+08:00</lastmod>
+        <lastmod>2014-10-08T20:49:00+08:00</lastmod>
     </url>
     <url>
         <loc>http://iBlock.github.io/blog/archives/</loc>
-        <lastmod>2014-10-08T23:38:58+08:00</lastmod>
+        <lastmod>2016-01-20T10:09:24+08:00</lastmod>
     </url>
     <url>
         <loc>http://iBlock.github.io/</loc>
-        <lastmod>2014-10-08T23:38:58+08:00</lastmod>
+        <lastmod>2016-01-20T10:09:24+08:00</lastmod>
     </url>
     <url>
         <loc>http://iBlock.github.io/robots.txt</loc>
-        <lastmod>2014-03-10T10:19:04+08:00</lastmod>
+        <lastmod>2014-10-08T20:49:00+08:00</lastmod>
     </url>
 </urlset>

@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Hybrid | iBlock的博客]]></title>
+  <link href="http://iBlock.github.io/blog/categories/hybrid/atom.xml" rel="self"/>
+  <link href="http://iBlock.github.io/"/>
+  <updated>2016-01-21T09:56:31+08:00</updated>
+  <id>http://iBlock.github.io/</id>
+  <author>
+    <name><![CDATA[iBlock]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[React-Native环境搭建]]></title>
+    <link href="http://iBlock.github.io/blog/2016/01/18/react-native-huan-jing-da-jian/"/>
+    <updated>2016-01-18T21:40:05+08:00</updated>
+    <id>http://iBlock.github.io/blog/2016/01/18/react-native-huan-jing-da-jian</id>
+    <content type="html"><![CDATA[<p><img src="/images/2016/01/18/ReactNative.png" title="ReactNative" alt="alt text" /></p>
+
+<h2>前言</h2>
+
+<p>最近领导让我们做一个H5与Native交互的方案，他最初的要求其实很简单，只要能在H5调起我们终端的支付功能进行支付就行。我的想法就是基于webView做一个URL拦截处理，与服务端协商好事件类型，如1是支付，2是弹窗，对URL中的类型与参数进行处理即可，当然这种做法比较low，不过可以很快完成需求。然后基于这个需求我搜了下目前网上的一些方案，发现了本文的主题，由facebook开源的React-Native框架，这个框架允许你使用 JavaScript 开发原生的 iOS 应用，同时也支持Android。</p>
+
+<!--more-->
+
+
+<h2>安装步骤</h2>
+
+<ul>
+<li><h3>安装Node版本管理器-> NVM</h3></li>
+</ul>
+
+
+<h4>1、首先进入.git目录下，该目录在/User/当前用户目录下，需要打开隐藏文件权限。如果没有该目录，则先创建该目录</h4>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>git init</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<h4>2、从git仓库中clone工程到本地</h4>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>git clone &lt;a href="https://github.com/cnpm/nvm.git">https://github.com/cnpm/nvm.git&lt;/a></span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<h4>3、在终端中输入命令nvm，这时会发现提示如下</h4>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>-bash: nvm: command not found</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<h4>4、上述的错误是提示nvm命令找不到，可以通过以下命令指定nvm路径</h4>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>source ~/.nvm/nvm.sh</span></code></pre></td></tr></table></div></figure></notextile></div>
+这时重新在终端输入nvm，会显示一些nvm的命令帮助，证明nvm已经能找到并使用。但是使用这种方式仅在本次生效，也就是说当把终端关闭再次打开时，再输入nvm又会发现命令找不到了。为避免每次都要指明nvm.sh的位置可以为命令终端添加启动配置。打开终端输入以下命令
+<div class='bogus-wrapper'><notextile><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>open -e !$</span></code></pre></td></tr></table></div></figure></notextile></div>
+将会打开profile文件，添加
+<div class='bogus-wrapper'><notextile><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>export NVM_DIR=&ldquo;$HOME/.nvm&rdquo;
+</span><span class='line'>[ -s &ldquo;$NVM_DIR/nvm.sh&rdquo; ] &amp;&amp; . &ldquo;$NVM_DIR/nvm.sh&rdquo; # This loads nvm</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<ul>
+<li><h3>安装Node</h3></li>
+</ul>
+
+
+<h4>1、在终端输入以下命令等待执行完成即可完成Node安装</h4>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>nvm install node &amp;&amp; nvm alias default node</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<h4>2、查看下Node是否生效，输入node -v，如果能显示版本号则正常</h4>
+
+<ul>
+<li><h3>使用 homebrew 安装 watchman，一个来自Facebook 的观察程序以及类型检查程序：</h3></li>
+</ul>
+
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>brew install watchman
+</span><span class='line'>brew install flow</span></code></pre></td></tr></table></div></figure></notextile></div>
+通过配置 watchman，React 实现了在代码发生变化时，完成相关的重建的功能。就像在使用 Xcode 时，每次保存文件都会进行一次创建。</p>
+
+<ul>
+<li><h3>安装 React-Native</h3></li>
+</ul>
+
+
+<p>通过 npm安装即可：
+<div class='bogus-wrapper'><notextile><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>npm install -g react-native-cli</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<ul>
+<li><h3>初始化一个ReactNative的项目</h3></li>
+</ul>
+
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>react-native init myFirstReactNativeProject</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<ul>
+<li><h3>运行ReactNative项目</h3></li>
+</ul>
+
+
+<h4>1、cd myFirstReactNativeProject</h4>
+
+<h4>2、用xcode打开myFirstReactNativeProject.xcodeproj并点击Run按钮</h4>
+
+<h4>3、用你喜欢的文本编辑器打开index.ios.js并随便改上几行</h4>
+
+<h4>4、在iOS Emulator中按下⌘-R就可以刷新APP并看到你的最新修改</h4>
+
+<p>恭喜！现在你已经成功运行并修改了你的第一个React Native应用！</p>
+]]></content>
+  </entry>
+  
+</feed>

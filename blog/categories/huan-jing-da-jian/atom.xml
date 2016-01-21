@@ -4,7 +4,7 @@
   <title><![CDATA[Category: 环境搭建 | iBlock的博客]]></title>
   <link href="http://iBlock.github.io/blog/categories/huan-jing-da-jian/atom.xml" rel="self"/>
   <link href="http://iBlock.github.io/"/>
-  <updated>2014-10-08T23:42:30+08:00</updated>
+  <updated>2016-01-21T09:56:31+08:00</updated>
   <id>http://iBlock.github.io/</id>
   <author>
     <name><![CDATA[iBlock]]></name>
@@ -12,6 +12,112 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[React-Native环境搭建]]></title>
+    <link href="http://iBlock.github.io/blog/2016/01/18/react-native-huan-jing-da-jian/"/>
+    <updated>2016-01-18T21:40:05+08:00</updated>
+    <id>http://iBlock.github.io/blog/2016/01/18/react-native-huan-jing-da-jian</id>
+    <content type="html"><![CDATA[<p><img src="/images/2016/01/18/ReactNative.png" title="ReactNative" alt="alt text" /></p>
+
+<h2>前言</h2>
+
+<p>最近领导让我们做一个H5与Native交互的方案，他最初的要求其实很简单，只要能在H5调起我们终端的支付功能进行支付就行。我的想法就是基于webView做一个URL拦截处理，与服务端协商好事件类型，如1是支付，2是弹窗，对URL中的类型与参数进行处理即可，当然这种做法比较low，不过可以很快完成需求。然后基于这个需求我搜了下目前网上的一些方案，发现了本文的主题，由facebook开源的React-Native框架，这个框架允许你使用 JavaScript 开发原生的 iOS 应用，同时也支持Android。</p>
+
+<!--more-->
+
+
+<h2>安装步骤</h2>
+
+<ul>
+<li><h3>安装Node版本管理器-> NVM</h3></li>
+</ul>
+
+
+<h4>1、首先进入.git目录下，该目录在/User/当前用户目录下，需要打开隐藏文件权限。如果没有该目录，则先创建该目录</h4>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>git init</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<h4>2、从git仓库中clone工程到本地</h4>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>git clone &lt;a href="https://github.com/cnpm/nvm.git">https://github.com/cnpm/nvm.git&lt;/a></span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<h4>3、在终端中输入命令nvm，这时会发现提示如下</h4>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>-bash: nvm: command not found</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<h4>4、上述的错误是提示nvm命令找不到，可以通过以下命令指定nvm路径</h4>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>source ~/.nvm/nvm.sh</span></code></pre></td></tr></table></div></figure></notextile></div>
+这时重新在终端输入nvm，会显示一些nvm的命令帮助，证明nvm已经能找到并使用。但是使用这种方式仅在本次生效，也就是说当把终端关闭再次打开时，再输入nvm又会发现命令找不到了。为避免每次都要指明nvm.sh的位置可以为命令终端添加启动配置。打开终端输入以下命令
+<div class='bogus-wrapper'><notextile><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>open -e !$</span></code></pre></td></tr></table></div></figure></notextile></div>
+将会打开profile文件，添加
+<div class='bogus-wrapper'><notextile><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>export NVM_DIR=&ldquo;$HOME/.nvm&rdquo;
+</span><span class='line'>[ -s &ldquo;$NVM_DIR/nvm.sh&rdquo; ] &amp;&amp; . &ldquo;$NVM_DIR/nvm.sh&rdquo; # This loads nvm</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<ul>
+<li><h3>安装Node</h3></li>
+</ul>
+
+
+<h4>1、在终端输入以下命令等待执行完成即可完成Node安装</h4>
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>nvm install node &amp;&amp; nvm alias default node</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<h4>2、查看下Node是否生效，输入node -v，如果能显示版本号则正常</h4>
+
+<ul>
+<li><h3>使用 homebrew 安装 watchman，一个来自Facebook 的观察程序以及类型检查程序：</h3></li>
+</ul>
+
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>brew install watchman
+</span><span class='line'>brew install flow</span></code></pre></td></tr></table></div></figure></notextile></div>
+通过配置 watchman，React 实现了在代码发生变化时，完成相关的重建的功能。就像在使用 Xcode 时，每次保存文件都会进行一次创建。</p>
+
+<ul>
+<li><h3>安装 React-Native</h3></li>
+</ul>
+
+
+<p>通过 npm安装即可：
+<div class='bogus-wrapper'><notextile><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>npm install -g react-native-cli</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<ul>
+<li><h3>初始化一个ReactNative的项目</h3></li>
+</ul>
+
+
+<p><div class='bogus-wrapper'><notextile><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>react-native init myFirstReactNativeProject</span></code></pre></td></tr></table></div></figure></notextile></div></p>
+
+<ul>
+<li><h3>运行ReactNative项目</h3></li>
+</ul>
+
+
+<h4>1、cd myFirstReactNativeProject</h4>
+
+<h4>2、用xcode打开myFirstReactNativeProject.xcodeproj并点击Run按钮</h4>
+
+<h4>3、用你喜欢的文本编辑器打开index.ios.js并随便改上几行</h4>
+
+<h4>4、在iOS Emulator中按下⌘-R就可以刷新APP并看到你的最新修改</h4>
+
+<p>恭喜！现在你已经成功运行并修改了你的第一个React Native应用！</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Octopress使用过程中出现的问题]]></title>
@@ -262,367 +368,6 @@ sudo gem install cocoapods
 <p><code>
 rvm use 1.9.3
 </code></p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Octopress博客开博]]></title>
-    <link href="http://iBlock.github.io/blog/2014/03/10/octopressbo-ke-kai-bo/"/>
-    <updated>2014-03-10T22:06:21+08:00</updated>
-    <id>http://iBlock.github.io/blog/2014/03/10/octopressbo-ke-kai-bo</id>
-    <content type="html"><![CDATA[<p><img src="/images/2014/03/10/octopress.png" title="octopress" alt="alt text" /></p>
-
-<h2>前言</h2>
-
-<p>octopress弄了好几天终于搭建起来了，主要是一开始在捣鼓各种各样的主题，然后找各种各样的插件，到头来发现我并不需要这些，我仅仅是需要一个能记录我的生活、记录我学习的点滴这么一个平台。为什么会选择Octopress?虽说只是为了写博客，但是我之前试过在其它的平台比如：博客园、CSDN等尝试写博客，但是效果很不理想，无论是外观样式还是排版都不怎么满意。我一直在看<a href="http://blog.devtang.com/" title="唐巧">唐巧</a>和<a href="http://onevcat.com/" title="上善若水">OneV&rsquo;s Den</a>写的技术博客，发现这样的博客正是我想要的样子，马上一通Google，最终才找到了octopress，下面我将把我搭建该博客的步骤记录下来。</p>
-
-<!--more-->
-
-
-<h2>安装步骤</h2>
-
-<ul>
-<li><h4>安装RVM，RVM(Ruby Version Manager)负责安装和管理Ruby的环境</h4>
-
-<p><div class='bogus-wrapper'><notextile><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>curl -L &lt;a href="https://get.rvm.io">https://get.rvm.io&lt;/a> | bash -s stable &mdash;ruby</span></code></pre></td></tr></table></div></figure></notextile></div></p></li>
-<li><h4>安装Ruby 1.9.3</h4>
-
-<p><div class='bogus-wrapper'><notextile><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>git clone git://github.com/imathis/octopress.git octopress          #octopress路径可以根据需要修改
-</span><span class='line'>cd octopress        #进入到指定路径下
-</span><span class='line'>ruby &mdash;version      #应该能正确输出ruby版本号才对</span></code></pre></td></tr></table></div></figure></notextile></div></p></li>
-<li><h4>安装相关依赖项</h4>
-
-<p><div class='bogus-wrapper'><notextile><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>gem install bundler
-</span><span class='line'>rbenv rehash
-</span><span class='line'>bundle install</span></code></pre></td></tr></table></div></figure></notextile></div></p></li>
-<li><h4>安装默认的Octopress主题，其它主题可参考<a href="https://github.com/imathis/octopress/wiki/3rd-Party-Octopress-Themes," title="主题列表">这里</a></h4>
-
-<p><div class='bogus-wrapper'><notextile><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>rake install</span></code></pre></td></tr></table></div></figure></notextile></div></p></li>
-</ul>
-
-
-<h2>配置Octopress</h2>
-
-<p>我这里主要是针对默认主题来展开的，其它主题的配置可能不一定适用。</p>
-
-<ul>
-<li><h4>首先修改_config.yml文件</h4>
-
-<p>我主要修改以下几项：
-<code>title</code>、<code>subtitle</code>、<code>author</code>
-，并且删除twitter相关的信息，由于GFW的原因，将会造成页面load很慢。</p></li>
-</ul>
-
-
-<p>关于_config.yml文件中的更多内容，请看<a href="http://octopress.org/">这里</a></p>
-
-<h2>将博客部署到github上</h2>
-
-<ul>
-<li><h4>准备工作</h4></li>
-</ul>
-
-
-<p>1.创建<code>github</code>账号</p>
-
-<p>2.在github上<code>创建一个仓库</code>，并将仓库名称按照这样的方式进行命名：<code>username.github.com</code>或<code>organization.github.com</code>，之后我们的博客就可以以<code>http://username.github.com</code>这样的方式来进行访问了。
-以上内容如有不明白的可自行Google。</p>
-
-<ul>
-<li><h4>根据Octopress的<code>rake</code>命令来自动配置仓库</h4>
-
-<p><div class='bogus-wrapper'><notextile><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>rake setup_github_pages</span></code></pre></td></tr></table></div></figure></notextile></div>
-上面的命令主要做的就是创建一个_deploy目录，目录用来存放部署到master分支的内容。期间会要求你输入仓库的url，根据提示，进行输入即可。
-完成上面的命令之后，我们就可以生成博客并真正的部署到仓库中了。执行如下命令：
-<div class='bogus-wrapper'><notextile><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>rake generate
-</span><span class='line'>rake deploy     #通过该命令把博客生成的内容提交到master分支下</span></code></pre></td></tr></table></div></figure></notextile></div>
-上面的命令首先生成博客文件，并将生成的博客文件拷贝到<code>_deploy/</code>目录下，然后将这些内容添加到git中，并commit和push到仓库的<code>master</code>分支。
-现在可以访问<code>http://username.github.com</code>了。注意：有时候可能会有延时，要等几分钟才能打开（我等了10分钟左右）。</p></li>
-</ul>
-
-
-<p>在使用rake deploy命令时可能会出现如下错误：
-<blockquote><p>Pushing generated _deploy website<br/>To git@github.com:xxx/iblock.github.com.git<br/> ! [rejected]        master &ndash;> master (non-fast-forward)<br/>error: failed to push some refs to &lsquo;git@github.com:xxx/iblock.github.com.git&rsquo;</p></blockquote></p>
-
-<p>看了很多人的博客搭建上都没有提到这个问题，不知道是否都没遇到，总之我是遇到了，出现这个问题后会发现怎么使用rake deploy这个命令在github的maste分支都没有任何东西，经过Google，最后找到解决方案了，修改<code>rakefile</code>文件里面的system &ldquo;git push origin #{deploy_branch}"改成system "git push origin <code>+</code>#{deploy_branch}"就解决了。</p>
-
-<ul>
-<li><h4>将博客的源代码放到source分支下</h4>
-
-<p><div class='bogus-wrapper'><notextile><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>$ git add .
-</span><span class='line'>$ git commit -m &lsquo;Initial source commit&rsquo;
-</span><span class='line'>$ git push origin source</span></code></pre></td></tr></table></div></figure></notextile></div></p></li>
-</ul>
-
-
-<p>如果在部署到仓库之前，需要先预览一下博客，可以在终端输入<code>rake preview</code>命令，然后就能在浏览器中进行本地预览访问了：<code>http://127.0.0.1:4000/</code>或<code>http://localhost:4000/</code>，效果跟仓库中的一样。</p>
-
-<p>完成上面的步骤后已经可以开始写博客了，只不过是页面也太过精简了，下面是用octopress写博客的几个步骤：
-<div class='bogus-wrapper'><notextile><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>$ rake new_post[&ldquo;New Post&rdquo;]
-</span><span class='line'>$ rake generate
-</span><span class='line'>$ git add .
-</span><span class='line'>$ git commit -am &ldquo;Some comment here.&rdquo;
-</span><span class='line'>$ git push origin source
-</span><span class='line'>$ rake deploy</span></code></pre></td></tr></table></div></figure></notextile></div></p>
-
-<h2>一些个性化的定制</h2>
-
-<ul>
-<li><h4>添加最近发表文章</h4>
-
-<p>修改_config.yml文件，找到<code>default_asides:</code>，添加asides/recent_posts.html</p></li>
-<li><h4>添加分类列表，并支持中文分类</h4>
-
-<p>保存以下代码到plugins/category_list.rb：
-<div class='bogus-wrapper'><notextile><figure class='code'><figcaption><span>category_list.rb </span></figcaption>
-<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="nb">require</span> <span class="o">&amp;</span><span class="n">lsquo</span><span class="p">;</span><span class="n">stringex</span><span class="o">&amp;</span><span class="n">rsquo</span><span class="p">;</span><span class="o">&lt;</span><span class="sr">/p&gt;&lt;/</span><span class="n">li</span><span class="o">&gt;</span>
-</span><span class='line'><span class="o">&lt;</span><span class="sr">/ul&gt;</span>
-</span><span class='line'>
-</span><span class='line'>
-</span><span class='line'><span class="sr">&lt;p&gt;module Jekyll</span>
-</span><span class='line'><span class="sr">  class CategoryListTag &amp;lt; Liquid::Tag&lt;/</span><span class="nb">p</span><span class="o">&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="o">&lt;</span><span class="n">pre</span><span class="o">&gt;&lt;</span><span class="n">code</span><span class="o">&gt;</span><span class="k">def</span> <span class="nf">render</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
-</span><span class='line'>  <span class="n">html</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
-</span><span class='line'>  <span class="n">categories</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">registers</span><span class="o">[</span><span class="ss">:site</span><span class="o">].</span><span class="n">categories</span><span class="o">.</span><span class="n">keys</span>
-</span><span class='line'>  <span class="n">categories</span><span class="o">.</span><span class="n">sort</span><span class="o">.</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">category</span><span class="o">|</span>
-</span><span class='line'>    <span class="n">posts_in_category</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">registers</span><span class="o">[</span><span class="ss">:site</span><span class="o">].</span><span class="n">categories</span><span class="o">[</span><span class="n">category</span><span class="o">].</span><span class="n">size</span>
-</span><span class='line'>    <span class="n">category_dir</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">registers</span><span class="o">[</span><span class="ss">:site</span><span class="o">].</span><span class="n">config</span><span class="o">[</span><span class="s1">&#39;category_dir&#39;</span><span class="o">]</span>
-</span><span class='line'>    <span class="c1"># category_url = File.join(category_dir, category.gsub(/_|\P{Word}/u, &#39;-&#39;).gsub(/-{2,}/u, &#39;-&#39;).downcase)</span>
-</span><span class='line'>    <span class="n">category_url</span> <span class="o">=</span> <span class="no">File</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">category_dir</span><span class="p">,</span> <span class="n">category</span><span class="o">.</span><span class="n">to_url</span><span class="p">)</span>
-</span><span class='line'>    <span class="n">html</span> <span class="o">&amp;</span><span class="n">lt</span><span class="p">;</span><span class="o">&amp;</span><span class="n">lt</span><span class="p">;</span> <span class="s2">&quot;&amp;lt;li class=&#39;category&#39;&amp;gt;&amp;lt;a href=&#39;http://iBlock.github.io/</span><span class="si">#{</span><span class="n">category_url</span><span class="si">}</span><span class="s2">/&#39;&amp;gt;</span><span class="si">#{</span><span class="n">category</span><span class="si">}</span><span class="s2"> (</span><span class="si">#{</span><span class="n">posts_in_category</span><span class="si">}</span><span class="s2">)&amp;lt;/a&amp;gt;&amp;lt;/li&amp;gt;</span><span class="se">\n</span><span class="s2">&quot;</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'>  <span class="n">html</span>
-</span><span class='line'><span class="k">end</span>
-</span><span class='line'><span class="o">&lt;</span><span class="sr">/code&gt;&lt;/</span><span class="n">pre</span><span class="o">&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="o">&lt;</span><span class="nb">p</span><span class="o">&gt;</span>  <span class="k">end</span>
-</span><span class='line'><span class="k">end</span><span class="o">&lt;</span><span class="sr">/p&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="sr">&lt;p&gt;Liquid::Template.register_tag(&amp;lsquo;category_list&amp;rsquo;, Jekyll::CategoryListTag)</span>
-</span></code></pre></td></tr></table></div></figure></notextile></div></p>
-
-<p>这个插件会向liquid注册一个名为category_list的tag，该tag就是以li的形式将站点所有的category组织起来。如果要将category加入到侧边导航栏，需要增加一个aside。</p>
-
-<p>复制以下代码到source/_includes/asides/category_list.html。</p>
-
-<p><div class='bogus-wrapper'><notextile><figure class='code'><figcaption><span>category_list.html </span></figcaption>
-<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-</pre></td><td class='code'><pre><code class='html'><span class='line'><span class="nt">&lt;section&gt;</span>
-</span><span class='line'>  <span class="nt">&lt;h1&gt;</span>Categories<span class="nt">&lt;/h1&gt;</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="nt">&lt;ul</span> <span class="na">id=</span><span class="s">&quot;categories&quot;</span><span class="nt">&gt;&lt;/p&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="nt">&lt;pre&gt;&lt;code&gt;</span>{% category_list %}
-</span><span class='line'><span class="nt">&lt;/code&gt;&lt;/pre&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="nt">&lt;p&gt;</span>  <span class="nt">&lt;/ul&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="nt">&lt;/section&gt;</span>
-</span></code></pre></td></tr></table></div></figure></notextile></div></p>
-
-<p>配置侧边栏需要修改_config.yml文件，修改其default_asides项：
-如下代码所示：
-<div class='bogus-wrapper'><notextile><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>default_asides: [asides/category_list.html, asides/recent_posts.html]</span></code></pre></td></tr></table></div></figure></notextile></div></p>
-
-<p>以上asides根据自己的需求调整。</p>
-
-<ul>
-<li><h4>添加分享及评论系统</h4></li>
-</ul>
-
-
-<p>分享我用的是<a href="http://www.jiathis.com/">加网</a>。</p>
-
-<p>评论我用的是<a href="http://duoshuo.com/">多说</a>。</p>
-
-<p>首先去<a href="http://iblock.duoshuo.com/">多说网</a>注册个账号，添加<a href="http://duoshuo.com/create-site/">站点</a>，获取站点short_name，但是这个short_name怎么获取我之前费了不少功夫才得知，其实就是申请多说二级域名，然后就能获得short_name了。比如我申请了iblock.duoshuo.com，那么我的short_name就是iblock。
-在 <code>source/_layouts/post.html</code>中的disqus代码</p>
-
-<p><div class='bogus-wrapper'><notextile><figure class='code'><figcaption><span>post.html </span></figcaption>
-<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-</pre></td><td class='code'><pre><code class='html'><span class='line'>{% if site.disqus_short_name and page.comments == true %}
-</span><span class='line'>  <span class="nt">&lt;section&gt;&lt;/p&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="nt">&lt;pre&gt;&lt;code&gt;</span><span class="ni">&amp;lt;</span>h1<span class="ni">&amp;gt;</span>Comments<span class="ni">&amp;lt;</span>/h1<span class="ni">&amp;gt;</span>
-</span><span class='line'><span class="ni">&amp;lt;</span>div id=&quot;disqus_thread&quot; aria-live=&quot;polite&quot;<span class="ni">&amp;gt;</span>{% include post/disqus_thread.html %}<span class="ni">&amp;lt;</span>/div<span class="ni">&amp;gt;</span>
-</span><span class='line'><span class="nt">&lt;/code&gt;&lt;/pre&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="nt">&lt;p&gt;</span>  <span class="nt">&lt;/section&gt;</span>
-</span><span class='line'>{% endif %}
-</span></code></pre></td></tr></table></div></figure></notextile></div></p>
-
-<p>下方添加<code>多说评论</code>模块
-<div class='bogus-wrapper'><notextile><figure class='code'><figcaption><span>post.html </span></figcaption>
-<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-</pre></td><td class='code'><pre><code class='html'><span class='line'>{% if site.duoshuo_short_name and site.duoshuo_comments == true and page.comments == true %}
-</span><span class='line'>  <span class="nt">&lt;section&gt;&lt;/p&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="nt">&lt;pre&gt;&lt;code&gt;</span><span class="ni">&amp;lt;</span>h1<span class="ni">&amp;gt;</span>Comments<span class="ni">&amp;lt;</span>/h1<span class="ni">&amp;gt;</span>
-</span><span class='line'><span class="ni">&amp;lt;</span>div id=&quot;comments&quot; aria-live=&quot;polite&quot;<span class="ni">&amp;gt;</span>{% include post/duoshuo.html %}<span class="ni">&amp;lt;</span>/div<span class="ni">&amp;gt;</span>
-</span><span class='line'><span class="nt">&lt;/code&gt;&lt;/pre&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="nt">&lt;p&gt;</span>  <span class="nt">&lt;/section&gt;</span>
-</span><span class='line'>{% endif %}
-</span></code></pre></td></tr></table></div></figure></notextile></div></p>
-
-<p>然后就按路径创建一个 <code>source/_includes/post/duoshuo.html</code>，添加如下代码：</p>
-
-<p><div class='bogus-wrapper'><notextile><figure class='code'><figcaption><span> (duoshuo.html)</span> <a href='/downloads/code/duoshuo.html'>download</a></figcaption>
-<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-</pre></td><td class='code'><pre><code class='html'><span class='line'><span class="c">&lt;!-- JiaThis Button BEGIN --&gt;</span>
-</span><span class='line'><span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;jiathis_style_24x24&quot;</span><span class="nt">&gt;</span>
-</span><span class='line'>	<span class="nt">&lt;a</span> <span class="na">class=</span><span class="s">&quot;jiathis_button_qzone&quot;</span><span class="nt">&gt;&lt;/a&gt;</span>
-</span><span class='line'>	<span class="nt">&lt;a</span> <span class="na">class=</span><span class="s">&quot;jiathis_button_tsina&quot;</span><span class="nt">&gt;&lt;/a&gt;</span>
-</span><span class='line'>	<span class="nt">&lt;a</span> <span class="na">class=</span><span class="s">&quot;jiathis_button_tqq&quot;</span><span class="nt">&gt;&lt;/a&gt;</span>
-</span><span class='line'>	<span class="nt">&lt;a</span> <span class="na">class=</span><span class="s">&quot;jiathis_button_weixin&quot;</span><span class="nt">&gt;&lt;/a&gt;</span>
-</span><span class='line'>	<span class="nt">&lt;a</span> <span class="na">class=</span><span class="s">&quot;jiathis_button_renren&quot;</span><span class="nt">&gt;&lt;/a&gt;</span>
-</span><span class='line'>	<span class="nt">&lt;a</span> <span class="na">href=</span><span class="s">&quot;http://www.jiathis.com/share&quot;</span> <span class="na">class=</span><span class="s">&quot;jiathis jiathis_txt jtico jtico_jiathis&quot;</span> <span class="na">target=</span><span class="s">&quot;_blank&quot;</span><span class="nt">&gt;&lt;/a&gt;</span>
-</span><span class='line'>	<span class="nt">&lt;a</span> <span class="na">class=</span><span class="s">&quot;jiathis_counter_style&quot;</span><span class="nt">&gt;&lt;/a&gt;</span>
-</span><span class='line'><span class="nt">&lt;/div&gt;</span>
-</span><span class='line'><span class="nt">&lt;script </span><span class="na">type=</span><span class="s">&quot;text/javascript&quot;</span> <span class="na">src=</span><span class="s">&quot;http://v3.jiathis.com/code/jia.js?uid=1394073450203129&quot;</span> <span class="na">charset=</span><span class="s">&quot;utf-8&quot;</span><span class="nt">&gt;&lt;/script&gt;</span>
-</span><span class='line'><span class="c">&lt;!-- JiaThis Button END --&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="c">&lt;!-- Duoshuo Comment BEGIN --&gt;</span>
-</span><span class='line'>	<span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;ds-thread&quot;</span><span class="nt">&gt;&lt;/div&gt;</span>
-</span><span class='line'><span class="nt">&lt;script </span><span class="na">type=</span><span class="s">&quot;text/javascript&quot;</span><span class="nt">&gt;</span>
-</span><span class='line'><span class="kd">var</span> <span class="nx">duoshuoQuery</span> <span class="o">=</span> <span class="p">{</span><span class="nx">short_name</span><span class="o">:</span><span class="s2">&quot;iblock&quot;</span><span class="p">};</span>
-</span><span class='line'>	<span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
-</span><span class='line'>		<span class="kd">var</span> <span class="nx">ds</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">createElement</span><span class="p">(</span><span class="s1">&#39;script&#39;</span><span class="p">);</span>
-</span><span class='line'>		<span class="nx">ds</span><span class="p">.</span><span class="nx">type</span> <span class="o">=</span> <span class="s1">&#39;text/javascript&#39;</span><span class="p">;</span><span class="nx">ds</span><span class="p">.</span><span class="nx">async</span> <span class="o">=</span> <span class="kc">true</span><span class="p">;</span>
-</span><span class='line'>		<span class="nx">ds</span><span class="p">.</span><span class="nx">src</span> <span class="o">=</span> <span class="s1">&#39;http://static.duoshuo.com/embed.js&#39;</span><span class="p">;</span>
-</span><span class='line'>		<span class="nx">ds</span><span class="p">.</span><span class="nx">charset</span> <span class="o">=</span> <span class="s1">&#39;UTF-8&#39;</span><span class="p">;</span>
-</span><span class='line'>		<span class="p">(</span><span class="nb">document</span><span class="p">.</span><span class="nx">getElementsByTagName</span><span class="p">(</span><span class="s1">&#39;head&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-</span><span class='line'>		<span class="o">||</span> <span class="nb">document</span><span class="p">.</span><span class="nx">getElementsByTagName</span><span class="p">(</span><span class="s1">&#39;body&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]).</span><span class="nx">appendChild</span><span class="p">(</span><span class="nx">ds</span><span class="p">);</span>
-</span><span class='line'>	<span class="p">})();</span>
-</span><span class='line'>	<span class="nt">&lt;/script&gt;</span>
-</span><span class='line'><span class="c">&lt;!-- Duoshuo Comment END --&gt;</span>
-</span></code></pre></td></tr></table></div></figure></notextile></div></p>
-
-<p>注意，将上面代码中的short_name:&ldquo;iblock"更改为你的short_name。</p>
-
-<p>最后修改_config.yml文件，添加</p>
-
-<p><div class='bogus-wrapper'><notextile><figure class='code'><figcaption><span>_config.yml </span></figcaption>
-<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-</pre></td><td class='code'><pre><code class='yaml'><span class='line'><span class="l-Scalar-Plain">&lt;/p&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="l-Scalar-Plain">&lt;h1&gt;duoshuo comments&lt;/h1&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="l-Scalar-Plain">&lt;p&gt;duoshuo_comments</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">true</span>
-</span><span class='line'><span class="l-Scalar-Plain">duoshuo_short_name</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">yourname</span>
-</span></code></pre></td></tr></table></div></figure></notextile></div></p>
-
-<p>以上内容就是我搭建博客过程中的步骤。</p>
-
-<p>主要参考的文章如下：</p>
-
-<p><a href="http://beyondvincent.com/blog/2013/08/03/108-creating-a-github-blog-using-octopress/">http://beyondvincent.com/blog/2013/08/03/108-creating-a-github-blog-using-octopress/</a>
-<a href="http://blog.devtang.com/blog/2012/02/10/setup-blog-based-on-github/">http://blog.devtang.com/blog/2012/02/10/setup-blog-based-on-github/</a>
-<a href="http://biaobiaoqi.me/blog/2013/07/10/decorate-octopress/">http://biaobiaoqi.me/blog/2013/07/10/decorate-octopress/</a></p>
 ]]></content>
   </entry>
   

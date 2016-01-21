@@ -4,7 +4,7 @@
   <title><![CDATA[iBlock的博客]]></title>
   <link href="http://iBlock.github.io/atom.xml" rel="self"/>
   <link href="http://iBlock.github.io/"/>
-  <updated>2014-10-08T23:42:30+08:00</updated>
+  <updated>2016-01-21T09:56:31+08:00</updated>
   <id>http://iBlock.github.io/</id>
   <author>
     <name><![CDATA[iBlock]]></name>
@@ -12,6 +12,128 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[React-Native环境搭建]]></title>
+    <link href="http://iBlock.github.io/blog/2016/01/18/react-native-huan-jing-da-jian/"/>
+    <updated>2016-01-18T21:40:05+08:00</updated>
+    <id>http://iBlock.github.io/blog/2016/01/18/react-native-huan-jing-da-jian</id>
+    <content type="html"><![CDATA[<p><img src="http://iBlock.github.io/images/2016/01/18/ReactNative.png" title="ReactNative" alt="alt text" /></p>
+
+<h2>前言</h2>
+
+<p>最近领导让我们做一个H5与Native交互的方案，他最初的要求其实很简单，只要能在H5调起我们终端的支付功能进行支付就行。我的想法就是基于webView做一个URL拦截处理，与服务端协商好事件类型，如1是支付，2是弹窗，对URL中的类型与参数进行处理即可，当然这种做法比较low，不过可以很快完成需求。然后基于这个需求我搜了下目前网上的一些方案，发现了本文的主题，由facebook开源的React-Native框架，这个框架允许你使用 JavaScript 开发原生的 iOS 应用，同时也支持Android。</p>
+
+<!--more-->
+
+
+<h2>安装步骤</h2>
+
+<ul>
+<li><h3>安装Node版本管理器-> NVM</h3></li>
+</ul>
+
+
+<h4>1、首先进入.git目录下，该目录在/User/当前用户目录下，需要打开隐藏文件权限。如果没有该目录，则先创建该目录</h4>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>git init</span></code></pre></td></tr></table></div></figure>
+
+
+<h4>2、从git仓库中clone工程到本地</h4>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>git clone https://github.com/cnpm/nvm.git</span></code></pre></td></tr></table></div></figure>
+
+
+<h4>3、在终端中输入命令nvm，这时会发现提示如下</h4>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>-bash: nvm: command not found</span></code></pre></td></tr></table></div></figure>
+
+
+<h4>4、上述的错误是提示nvm命令找不到，可以通过以下命令指定nvm路径</h4>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>source ~/.nvm/nvm.sh</span></code></pre></td></tr></table></div></figure>
+
+
+<p>这时重新在终端输入nvm，会显示一些nvm的命令帮助，证明nvm已经能找到并使用。但是使用这种方式仅在本次生效，也就是说当把终端关闭再次打开时，再输入nvm又会发现命令找不到了。为避免每次都要指明nvm.sh的位置可以为命令终端添加启动配置。打开终端输入以下命令</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>open -e !$</span></code></pre></td></tr></table></div></figure>
+
+
+<p>将会打开profile文件，添加</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>export NVM_DIR="$HOME/.nvm"
+</span><span class='line'>[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh" # This loads nvm</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li><h3>安装Node</h3></li>
+</ul>
+
+
+<h4>1、在终端输入以下命令等待执行完成即可完成Node安装</h4>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>nvm install node && nvm alias default node</span></code></pre></td></tr></table></div></figure>
+
+
+<h4>2、查看下Node是否生效，输入node -v，如果能显示版本号则正常</h4>
+
+<ul>
+<li><h3>使用 homebrew 安装 watchman，一个来自Facebook 的观察程序以及类型检查程序：</h3></li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>brew install watchman
+</span><span class='line'>brew install flow</span></code></pre></td></tr></table></div></figure>
+
+
+<p>通过配置 watchman，React 实现了在代码发生变化时，完成相关的重建的功能。就像在使用 Xcode 时，每次保存文件都会进行一次创建。</p>
+
+<ul>
+<li><h3>安装 React-Native</h3></li>
+</ul>
+
+
+<p>通过 npm安装即可：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>npm install -g react-native-cli</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li><h3>初始化一个ReactNative的项目</h3></li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>react-native init myFirstReactNativeProject</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li><h3>运行ReactNative项目</h3></li>
+</ul>
+
+
+<h4>1、cd myFirstReactNativeProject</h4>
+
+<h4>2、用xcode打开myFirstReactNativeProject.xcodeproj并点击Run按钮</h4>
+
+<h4>3、用你喜欢的文本编辑器打开index.ios.js并随便改上几行</h4>
+
+<h4>4、在iOS Emulator中按下⌘-R就可以刷新APP并看到你的最新修改</h4>
+
+<p>恭喜！现在你已经成功运行并修改了你的第一个React Native应用！</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Octopress使用过程中出现的问题]]></title>
@@ -1041,6 +1163,22 @@ Mailimap 定义在在 imapdriver_types.h 中,它的主要成员是关于操作�
 <p>找到之前的描述文件，这个时候只要将之前的描述文件重新生成一下即可，不用重新新建一个描述文件。重新生成之后描述文件的日期将会延后一年，然后将这个描述文件下载到本地，导入到你要打包的机器上，然后重新打一个包，让之前应用打开会闪退的iPhone手机重新安装新打的包即可。仅仅是为了记录一下，避免以后再次出现这种问题又花费时间排查。</p>
 
 <p>至于文章开头说的另一个错误：公司网站上的IOS应用程序无法下载安装，则可参考我的另一篇博客<a href="http://iblock.github.io/blog/2014/04/04/ios7-dot-1-qi-ye-ying-yong-wu-fa-an-zhuang-jie-jue-fang-an/">IOS7.1 企业应用无法安装解决方案</a></p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[NSString类方法使用记录]]></title>
+    <link href="http://iBlock.github.io/blog/2014/04/03/nsstringlei-fang-fa-shi-yong-ji-lu/"/>
+    <updated>2014-04-03T23:12:44+08:00</updated>
+    <id>http://iBlock.github.io/blog/2014/04/03/nsstringlei-fang-fa-shi-yong-ji-lu</id>
+    <content type="html"><![CDATA[<p>这篇博客主要用来记录我在IOS编程中使用过的NSString方法，每用到一个之前没用过的方法就会进行记录，所以这篇博客会不断进行更新。</p>
+
+<!--more-->
+
+
+<h2>初始化方法</h2>
+
+<h4>1、</h4>
 ]]></content>
   </entry>
   
