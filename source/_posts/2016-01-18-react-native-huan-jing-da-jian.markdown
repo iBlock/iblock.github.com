@@ -42,6 +42,7 @@ open -e !$
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh" # This loads nvm
 {% endcodeblock %}
+
 * ###安装Node
 
 ####1、在终端输入以下命令等待执行完成即可完成Node安装
@@ -65,10 +66,23 @@ brew install flow
 npm install -g react-native-cli
 {% endcodeblock %}
 
-* ###初始化一个项目
+* ###初始化一个ReactNative的项目
 
 {% codeblock %}
-react-native init AwesomeProject
+react-native init myFirstReactNativeProject
 {% endcodeblock %}
+
+* ###运行ReactNative项目
+
+####1、cd myFirstReactNativeProject
+####2、用xcode打开myFirstReactNativeProject.xcodeproj并点击Run按钮
+####3、用你喜欢的文本编辑器打开index.ios.js并随便改上几行
+####4、在iOS Emulator中按下⌘-R就可以刷新APP并看到你的最新修改
+
+恭喜！现在你已经成功运行并修改了你的第一个React Native应用！
+
+
+
+
 
 
